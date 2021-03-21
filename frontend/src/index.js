@@ -4,37 +4,33 @@ import './index.css';
 import { AiFillCaretDown, AiFillCaretUp } from "react-icons/ai"
 
 
-
 class Search extends React.Component{
   constructor(props){
     super(props);
     this.state = {keyword:'', numResult:'', result:'', test:''};
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.executeSearch = this.props.executeSearch.bind(this);
   }
 
   handleChange(event){
     if(event.target.id === "keyword"){
       this.setState({keyword:event.target.value});
-      this.props.keyword = event.target.value;
     }
     else if(event.target.id === "numResult"){
       this.setState({numResult:event.target.value})
-      this.props.numResult = event.target.value;
     }
   }
 
   handleSubmit(event){
-    fetch("/api/query/full_studies?expr=heart+attack&min_rnk=1&max_rnk=1&fmt=json")
-      .then(response => response.json())
-      .then((result) => {alert(result)},
-        (error) => {alert(error)})
+    event.preventDefault();
+    this.executeSearch(this.state.keyword, this.state.numResult);
   }
 
   render(){
     const BarStyling = {width:"20rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
     return(
-      <form onSubmit={() => this.props.executeSearch(this.state.keyword, this.state.numResult)}>
+      <form onSubmit={this.handleSubmit}>
         <input 
           id="keyword"
           style={BarStyling}
@@ -67,8 +63,10 @@ class Display extends React.Component{
     const numDisplays = 2; //Determines how many trials to display on screen. 
     const wrappers = []; //array of trial display wrappers
     let i;
+    this.executeSearch=this.executeSearch.bind(this);
+    this.sortResults = this.sortResults.bind(this);
       
-    for (i = 0; i < numDisplays; i++) { 
+    /*for (i = 0; i < numDisplays; i++) { 
       wrappers.push(<TrialWrapper key={"key"+ i} numDisplays={numDisplays}
         displayInCriteria={false} //Initial values for criteria dropdown
         displayOutCriteria={false}
@@ -89,18 +87,72 @@ class Display extends React.Component{
         resultChoice={i} 
         trialData={null}
         />);
-    }
+    }*/
     //Since we want to use these values elsewhere, add them to the state since state is persistent (each componenet instance has own state).
-    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, wrappers: wrappers, trial1: null, trial2: null}; 
+    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, trial1: null, trial2: null}; 
   }
 
-  componentDidMount(){
-
-    fetch("/api/query/full_studies?expr=paloma+3%0D%0A&min_rnk=1&max_rnk=2&fmt=json")
+  executeSearch(keyword, numResult){
+    keyword = keyword.split(" ");
+    let search = "";
+    for(let i = 0; i < keyword.length; i++){
+      search += keyword[i];
+      if(i !== keyword.length-1){
+        search += "+";
+      }
+    }
+    let queryString = "/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=" + numResult + "&fmt=json";
+    let results = []
+    fetch(queryString)
       .then(response => response.json())
-      .then((result) => {this.setState({trial1: result.FullStudiesResponse.FullStudies[0], trial2: result.FullStudiesResponse.FullStudies[1]}); this.updateCriteria()},
-        (error) => {alert(error)});
+      .then((result) => {
+        for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
+          results.push(result.FullStudiesResponse.FullStudies[i]);
+        }
+        this.setState({trials: results, numDisplays: result.FullStudiesResponse.FullStudies.length});
+        this.updateCriteria();
+      },
+      (error) => {alert(error)});
+    return false;
 
+  }
+
+  //This function is called when the sorting criteria form is submitted. Inputs are the elements from the form.
+  sortResults(_age, condition, inc, exc, ongoing, completed, includeDrug, excludeDrug){
+    let currentResults = this.state.trials; //Retrieve the current list of trials
+    let currentResultsJSON = JSON.stringify(currentResults)
+
+    const content = {
+      data: currentResultsJSON,
+      age: _age,
+      order: "ascending"
+    };
+
+    const requestMetadata = {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: content
+    };
+    
+    fetch("http://127.0.0.1:5000/api/sortTrialsByCriteria", requestMetadata)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            trials: result.items
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          alert(error)
+        }
+      )
+    
+    this.updateCriteria(); //Re-render our elements
   }
 
 
@@ -119,16 +171,7 @@ class Display extends React.Component{
         toggleOutCriteria={() => this.toggleOutCriteria()}
         toggleOutMeasures={() => this.toggleOutMeasures()}
         toggleResults={() => this.toggleResults()}
-        trialChoice={i}
-        dateChoice={i}
-        typeChoice={i}
-        conditionChoice={i}
-        treatmentsChoice={i}
-        inclusionChoice={i}
-        outcomeChoice={i}
-        resultChoice={i}
-        linkChoice={i}
-        trialData={i===0 ? JSON.stringify(this.state.trial1) : JSON.stringify(this.state.trial2)}
+        trialData={JSON.stringify(this.state.trials[i])}
         />);
     }
     //Calling setState triggers the render function to run and essentially updates the component
@@ -156,9 +199,9 @@ class Display extends React.Component{
   render(){
     return(
       <div className="Background">
-        <Search />
+        <Search executeSearch={this.executeSearch}/>
         <div className = 'PatientAndTrials'>
-          <PatientDisplay/>
+          <PatientDisplay sortResults={this.sortResults}/>
           <div className="TrialCollection">
             {this.state.wrappers}
           </div>
@@ -173,67 +216,123 @@ class Display extends React.Component{
 class PatientDisplay extends React.Component {
   constructor(props){
     super(props);
+
+    this.state = {
+      m_age: '',
+      m_condition: '',
+      m_inclusion: '',
+      m_exclusion: '',
+      m_ongoing: true,
+      m_completed: true,
+      m_includeDrug: '',
+      m_excludeDrug: '',
+    }
+
+    this.handleAgeChange = this.handleAgeChange.bind(this);
+    this.handleConditionChange = this.handleConditionChange.bind(this);
+    this.handleInclusionChange = this.handleInclusionChange.bind(this);
+    this.handleExclusionChange = this.handleExclusionChange.bind(this);
+    this.handleOngoingChange = this.handleOngoingChange.bind(this);
+    this.handleCompletedChange = this.handleCompletedChange.bind(this);
+    this.handleIncludeDrugChange = this.handleIncludeDrugChange.bind(this);
+    this.handleExcludeDrugChange = this.handleExcludeDrugChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.sortResults = this.props.sortResults.bind(this);
+
+  }
+
+  handleAgeChange(event){
+    this.setState({m_age: event.target.value});
+    console.log(this.state.age);
+  }
+  handleConditionChange(event){
+    this.setState({m_condition: event.target.value});
+  }
+  handleInclusionChange(event){
+    this.setState({m_inclusion: event.target.value});
+  }
+  handleExclusionChange(event){
+    this.setState({m_exclusion: event.target.value});
+  }
+  handleOngoingChange(event){
+    this.setState({m_ongoing: !this.state.m_ongoing});
+  }
+  handleCompletedChange(event){
+    this.setState({m_completed: !this.state.m_completed});
+  }
+  handleIncludeDrugChange(event){
+    this.setState({m_includeDrug: event.target.value});
+  }
+  handleExcludeDrugChange(event){
+    this.setState({m_excludeDrug: event.target.value});
+  }
+
+  handleSubmit(event){
+    event.preventDefault();
+    this.sortResults(this.state.m_age, this.state.m_condition, this.state.m_inclusion, this.state.m_exclusion,
+      this.state.m_ongoing, this.state.m_completed, this.state.m_includeDrug, this.state.m_excludeDrug);
   }
 
   render(){
     return(
       <div className='PatientDisplay' style={{width:'200px'}}>
         <p className="Header1">Sorting Criteria</p>
-        <form>
+        <form onSubmit={this.handleSubmit}>
           <p className="Header2">Patient Information</p>
           <input
           className="TextInput"
           placeholder="Age"
+          value={this.state.m_age}
+          onChange={this.handleAgeChange}
           />
           <input
           className="TextInput"
           placeholder="Condition"
+          value={this.state.m_condition}
+          onChange={this.handleConditionChange}
           />
           <input
           className="TextInput"
           placeholder="Inclusion Criteria"
+          value={this.state.m_inclusion}
+          onChange={this.handleInclusionChange}
           />
           <input
           className="TextInput"
           placeholder="Exlusion Criteria"
+          value={this.state.m_exclusion}
+          onChange={this.handleExclusionChange}
           />
           <p className="Header2">Trial Status</p>
           <input
           className="TextInput"
           type="checkbox"
           id="option1"
-          value="Primary Ongoing"
+          value="Study Ongoing"
+          onChange={this.handleOngoingChange}
           />
-          <label htmlFor="option1">Primary Ongoing</label>
-          <br/>
-          <input
-          className="TextInput"
-          type="checkbox"
-          id="option2"
-          value="Primary Completed"
-          />
-          <label htmlFor="option2">Primary Completed</label>
+          <label htmlFor="option1">Study Ongoing</label>
           <br/>
           <input
           className="TextInput"
           type="checkbox"
           id="option3"
           value="Study Completed"
+          onChange={this.handleCompletedChange}
           />
           <label htmlFor="option3">Study Completed</label>
           <p className="Header2">Drug Information</p>
           <input
           className="TextInput"
           placeholder="Include Drug"
+          value={this.state.m_includeDrug}
+          onChange={this.handleIncludeDrugChange}
           />
           <input
           className="TextInput"
           placeholder="Exclude Drug"
-          />
-          <p className="Header2">Outcome Measures</p>
-          <input
-          className="TextInput"
-          placeholder="Desired Outcome Measure"
+          value={this.state.m_excludeDrug}
+          onChange={this.handleExcludeDrugChange}
           />
           <br/>
           <br/>
@@ -255,15 +354,6 @@ class TrialWrapper extends React.Component {
       displayOutCriteria: this.props.displayOutCriteria,
       displayOutMeasures: this.props.displayOutMeasures,
       displayResults: this.props.displayResults,
-      trialChoice: this.props.trialChoice,
-      dateChoice: this.props.dateChoice,
-      typeChoice: this.props.typeChoice,
-      conditionChoice: this.props.conditionChoice,
-      treatmentsChoice: this.props.treatmentsChoice,
-      inclusionChoice: this.props.inclusionChoice,
-      outcomeChoice: this.props.outcomeChoice, 
-      resultChoice: this.props.resultChoice, 
-      linkChoice: this.props.linkChoice,
       trialData: JSON.parse(this.props.trialData)
     };
   }
@@ -300,81 +390,49 @@ class TrialWrapper extends React.Component {
     return (
       <div className="TrialWrapper" style={{width: this.state.width}}>
         <TrialName 
-          trialChoice={this.state.trialChoice} 
-          data={this.state.trialData? JSON.stringify(this.state.trialData.Study.ProtocolSection.IdentificationModule.BriefTitle) : null} />
+          data={this.state.trialData.Study.ProtocolSection.IdentificationModule.BriefTitle? 
+            JSON.stringify(this.state.trialData.Study.ProtocolSection.IdentificationModule.BriefTitle) : null} />
         <TrialDate 
-          dateChoice={this.state.dateChoice}
-          startDate= {this.state.trialData ? this.state.trialData.Study.ProtocolSection.StatusModule.StartDateStruct.StartDate : null}
-          primaryCompDate = {this.state.trialData ? this.state.trialData.Study.ProtocolSection.StatusModule.PrimaryCompletionDateStruct.PrimaryCompletionDate : null}
-          estCompDate = {this.state.trialData ? this.state.trialData.Study.ProtocolSection.StatusModule.CompletionDateStruct.CompletionDate : null}
+          data={this.state.trialData.Study.ProtocolSection.StatusModule? 
+            this.state.trialData.Study.ProtocolSection.StatusModule : null}
         />
         <TrialType
-          typeChoice={this.state.typeChoice}
-          data={this.state.trialData ? this.state.trialData.Study.ProtocolSection.DesignModule.StudyType : null}
+          data={this.state.trialData.Study.ProtocolSection.DesignModule.StudyType ? 
+            this.state.trialData.Study.ProtocolSection.DesignModule.StudyType : null}
         />
-        <TrialCondition conditionChoice={this.state.conditionChoice}
-          conditionChoice={this.state.conditionChoice}
-          data={this.state.trialData ? this.state.trialData.Study.ProtocolSection.ConditionsModule.ConditionList.Condition : null}
+        <TrialCondition 
+          data={this.state.trialData.Study.ProtocolSection.ConditionsModule.ConditionList.Condition ? 
+            this.state.trialData.Study.ProtocolSection.ConditionsModule.ConditionList.Condition : null}
         />
         <TrialTreatment
-          treatmentsChoice={this.state.treatmentsChoice}
-          treatmentsList={this.state.trialData ? this.parseTreatments(this.state.trialData.Study.ProtocolSection.ArmsInterventionsModule.InterventionList.Intervention) : null}
+          treatmentsList={this.state.trialData.Study.ProtocolSection.ArmsInterventionsModule.hasOwnProperty('InterventionList') ? 
+            this.parseTreatments(this.state.trialData.Study.ProtocolSection.ArmsInterventionsModule.InterventionList.Intervention) : null}
         />
         <TrialInCriteria 
-         inclusionChoice={this.state.inclusionChoice} 
          displayInCriteria={this.state.displayInCriteria} 
          toggleInCriteria={() => this.props.toggleInCriteria()}
-         clusionStr = {this.state.trialData ? this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria : null}
+         inclusionStr = {this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria ? 
+          this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria : null}
         />
         <TrialExCriteria 
          displayOutCriteria={this.state.displayOutCriteria} 
          toggleOutCriteria={() => this.props.toggleOutCriteria()}
-         clusionStr = {this.state.trialData ? this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria : null}
+         exclusionStr = {this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria ? 
+          this.state.trialData.Study.ProtocolSection.EligibilityModule.EligibilityCriteria : null}
         />
         <TrialOutcomeMeasures 
-        outcomeChoice={this.state.outcomeChoice} 
-        displayOutMeasures={this.state.displayOutMeasures} 
-        toggleOutMeasures={() => this.props.toggleOutMeasures()}
-        data={this.state.trialData? JSON.stringify(this.state.trialData.Study.ProtocolSection.OutcomesModule) : null}
+          displayOutMeasures={this.state.displayOutMeasures} 
+          toggleOutMeasures={() => this.props.toggleOutMeasures()}
+          data={this.state.trialData.Study.ProtocolSection.OutcomesModule ? 
+            JSON.stringify(this.state.trialData.Study.ProtocolSection.OutcomesModule) : null}
         /> 
         <TrialResult
-          resultChoice={this.state.resultChoice}
           displayResults={this.state.displayResults} 
           toggleResults={() => this.props.toggleResults()}
-          leftFlowGroupTitle={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowGroupList.FlowGroup[0].FlowGroupTitle : "null") : null}
-          rightFlowGroupTitle={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowGroupList.FlowGroup[1].FlowGroupTitle : "null") : null}
-          leftStarted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[0].FlowAchievementList.FlowAchievement[0].FlowAchievementNumSubjects : "null") : null}
-          rightStarted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[0].FlowAchievementList.FlowAchievement[1].FlowAchievementNumSubjects : "null") : null}
-
-          leftCompleted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[1].FlowAchievementList.FlowAchievement[0].FlowAchievementNumSubjects : "null") : null}
-          rightCompleted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[1].FlowAchievementList.FlowAchievement[1].FlowAchievementNumSubjects : "null") : null}
-
-          leftNotCompleted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[2].FlowAchievementList.FlowAchievement[0].FlowAchievementNumSubjects : "null") : null}
-          rightNotCompleted={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowMilestoneList.FlowMilestone[2].FlowAchievementList.FlowAchievement[1].FlowAchievementNumSubjects : "null") : null}
-
-          leftAdverse={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[0].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightAdverse={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[0].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftStatus={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[1].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightStatus={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[1].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftRand={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[2].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightRand={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[2].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftDeath={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[3].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightDeath={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[3].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftObject={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[4].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightObject={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[4].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftRef={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[5].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightRef={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[5].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
-
-          leftWith={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[6].FlowReasonList.FlowReason[0].FlowReasonNumSubjects : "null") : null}
-          rightWith={this.state.trialData ? (this.state.trialData.Study.ResultsSection ? this.state.trialData.Study.ResultsSection.ParticipantFlowModule.FlowPeriodList.FlowPeriod[0].FlowDropWithdrawList.FlowDropWithdraw[6].FlowReasonList.FlowReason[1].FlowReasonNumSubjects : "null") : null}
+          data={this.state.trialData.Study.hasOwnProperty('ResultsSection') ? 
+            this.state.trialData.Study.ResultsSection : null}
         />
         <TrialLink
-          linkChoice={this.state.linkChoice}
           link={this.state.trialData ? "https://clinicaltrials.gov/ct2/show/study/" + this.state.trialData.Study.ProtocolSection.IdentificationModule.NCTId : null}
         />
       </div>
@@ -409,13 +467,27 @@ class TrialName extends React.Component {
 class TrialDate extends React.Component {
   constructor(props){
     super(props);
-    this.state= {data: {start: this.props.startDate, primary: this.props.primaryCompDate, estComp: this.props.estCompDate}};
-  }
-
-  componentDidUpdate(prevProps){
-    if(this.props !== prevProps){
-      this.setState({data: {start: this.props.startDate, primary: this.props.primaryCompDate, estComp: this.props.estCompDate}});
+    let data = this.props.data;
+    let start;
+    let primary;
+    let estComp;
+    if(!data.hasOwnProperty('PrimaryCompletionDateStruct')){
+      primary = 'n/a';
     }
+    else{
+      primary = data.PrimaryCompletionDateStruct.PrimaryCompletionDate;
+    }
+    if(!data.hasOwnProperty('CompletionDateStruct')){
+      estComp = 'n/a';
+    }
+    else{
+      estComp = data.CompletionDateStruct.CompletionDate;
+    }
+    this.state= {
+      start: this.props.data.StartDateStruct.StartDate,
+      primary: primary,
+      estComp: estComp
+    };
   }
 
   render(){
@@ -423,17 +495,17 @@ class TrialDate extends React.Component {
       <div className="TrialSection" >
         <p>Actual Study Start Date:
           <span className="text">
-            {" " + this.state.data.start}
+            {" " + this.state.start}
           </span>
         </p>
         <p>Actual Primary Completion Date:
           <span className="text">
-            {" " + this.state.data.primary}
+            {" " + this.state.primary}
           </span>
         </p>
         <p>Estimated Study Completion Date:
           <span className="text">
-            {" " + this.state.data.estComp}
+            {" " + this.state.estComp}
           </span>
         </p>
       </div>
@@ -533,13 +605,13 @@ class TrialTreatment extends React.Component {
 class TrialInCriteria extends React.Component {
   constructor(props){
     super(props);
-    this.state = {displayInCriteria: this.props.displayInCriteria, clusionStr: this.props.clusionStr}
+    this.state = {displayInCriteria: this.props.displayInCriteria, inclusionStr: this.props.inclusionStr}
   }
 
   //Triggers when prop from parent changes (dropdown toggle)
   componentDidUpdate(prevProps){
     if(this.props !== prevProps){
-      this.setState({clusionStr: this.props.clusionStr});
+      this.setState({inclusionStr: this.props.inclusionStr});
     }
     if(prevProps.displayInCriteria !== this.props.displayInCriteria){
       this.setState({displayInCriteria: this.props.displayInCriteria});
@@ -555,7 +627,7 @@ class TrialInCriteria extends React.Component {
           Inclusion Criteria 
           {this.state.displayInCriteria ? <AiFillCaretUp /> : <AiFillCaretDown />}
         </p>
-        {this.state.displayInCriteria ? <CriteriaBox type="Inclusion" clusionStr={this.state.clusionStr}/> : null}
+        {this.state.displayInCriteria ? <CriteriaBox type="Inclusion" data={this.state.inclusionStr}/> : null}
       </div>
     );
   }
@@ -565,12 +637,12 @@ class TrialInCriteria extends React.Component {
 class TrialExCriteria extends React.Component {
   constructor(props){
     super(props);
-    this.state = {displayOutCriteria: this.props.displayOutCriteria, clusionStr: this.props.clusionStr}
+    this.state = {displayOutCriteria: this.props.displayOutCriteria, exclusionStr: this.props.exclusionStr}
   }
 
   componentDidUpdate(prevProps){
     if(this.props !== prevProps){
-      this.setState({clusionStr: this.props.clusionStr});
+      this.setState({exclusionStr: this.props.exclusionStr});
     }
     if(prevProps.displayOutCriteria !== this.props.displayOutCriteria){
       this.setState({displayOutCriteria: this.props.displayOutCriteria});
@@ -584,7 +656,7 @@ class TrialExCriteria extends React.Component {
           Exclusion Criteria 
           {this.state.displayOutCriteria ? <AiFillCaretUp /> : <AiFillCaretDown />}
         </p>
-        {this.state.displayOutCriteria ? <CriteriaBox type="Exclusion" clusionStr={this.state.clusionStr}/> : null}
+        {this.state.displayOutCriteria ? <CriteriaBox type="Exclusion" data={this.state.exclusionStr}/> : null}
       </div>
     );
   }
@@ -595,7 +667,6 @@ class TrialOutcomeMeasures extends React.Component {
     super(props);
     this.state = {
       displayOutMeasures: this.props.displayOutMeasures, 
-      outcomeChoice: this.props.outcomeChoice,
       data: JSON.parse(this.props.data)
     };
   }
@@ -616,7 +687,7 @@ class TrialOutcomeMeasures extends React.Component {
           Outcome Measures
           {this.state.displayOutMeasures ? <AiFillCaretUp /> : <AiFillCaretDown />}
         </p>
-        {this.state.displayOutMeasures ? <MeasuresBox data={JSON.stringify(this.state.data)} outcomeChoice={this.state.outcomeChoice} /> : null}
+        {this.state.displayOutMeasures ? <MeasuresBox data={JSON.stringify(this.state.data)}/> : null}
       </div>
     );
   }
@@ -626,30 +697,7 @@ class TrialResult extends React.Component {
   constructor(props){
     super(props);
     this.state = {displayResults: this.props.displayResults, 
-                  resultChoice: this.props.resultChoice,
-                  leftFlowGroupTitle: this.props.leftFlowGroupTitle,
-                  rightFlowGroupTitle: this.props.rightFlowGroupTitle,
-                  leftStarted: this.props.leftStarted,
-                  rightStarted: this.props.rightStarted,
-                  leftCompleted: this.props.leftCompleted,
-                  rightCompleted: this.props.rightCompleted,
-                  leftNotCompleted: this.props.leftNotCompleted,
-                  rightNotCompleted: this.props.rightNotCompleted,
-
-                  leftAdverse: this.props.leftAdverse,
-                  rightAdverse: this.props.rightAdverse,
-                  leftStatus: this.props.leftStatus,
-                  rightStatus: this.props.rightStatus,
-                  leftRand: this.props.leftRand,
-                  rightRand: this.props.rightRand,
-                  leftDeath: this.props.leftDeath,
-                  rightDeath: this.props.rightDeath,
-                  leftObject: this.props.leftObject,
-                  rightObject: this.props.rightObject,
-                  leftRef: this.props.leftRef,
-                  rightRef: this.props.rightRef,
-                  leftWith: this.props.leftWith,
-                  rightWith: this.props.rightWith,
+      data: this.props.data
     };
   }
 
@@ -659,30 +707,9 @@ class TrialResult extends React.Component {
     }
 
     if(this.props !== prevProps){
-      this.setState({leftFlowGroupTitle: this.props.leftFlowGroupTitle, 
-                     rightFlowGroupTitle: this.props.rightFlowGroupTitle,
-                     leftStarted: this.props.leftStarted,
-                     rightStarted: this.props.rightStarted,
-                     leftCompleted: this.props.leftCompleted,
-                     rightCompleted: this.props.rightCompleted,
-                     leftNotCompleted: this.props.leftNotCompleted,
-                     rightNotCompleted: this.props.rightNotCompleted,
-
-                     leftAdverse: this.props.leftAdverse,
-                     rightAdverse: this.props.rightAdverse,
-                     leftStatus: this.props.leftStatus,
-                     rightStatus: this.props.rightStatus,
-                     leftRand: this.props.leftRand,
-                     rightRand: this.props.rightRand,
-                     leftDeath: this.props.leftDeath,
-                     rightDeath: this.props.rightDeath,
-                     leftObject: this.props.leftObject,
-                     rightObject: this.props.rightObject,
-                     leftRef: this.props.leftRef,
-                     rightRef: this.props.rightRef,
-                     leftWith: this.props.leftWith,
-                     rightWith: this.props.rightWith,
-                    });
+      this.setState({
+        data: this.props.data
+      });
     }
   }
 
@@ -693,31 +720,7 @@ class TrialResult extends React.Component {
           Result
           {this.state.displayResults ? <AiFillCaretUp /> : <AiFillCaretDown />}
         </p>
-        {this.state.displayResults ? <ResultTable resultChoice={this.state.resultChoice}
-                                                  leftFlowGroupTitle={this.state.leftFlowGroupTitle}
-                                                  rightFlowGroupTitle={this.state.rightFlowGroupTitle}
-                                                  leftStarted={this.state.leftStarted}
-                                                  rightStarted={this.state.rightStarted}
-                                                  leftCompleted={this.state.leftCompleted}
-                                                  rightCompleted={this.state.rightCompleted}
-                                                  leftNotCompleted={this.state.leftNotCompleted}
-                                                  rightNotCompleted={this.state.rightNotCompleted}
-
-                                                  leftAdverse={this.state.leftAdverse}
-                                                  rightAdverse={this.state.rightAdverse}
-                                                  leftStatus={this.state.leftStatus}
-                                                  rightStatus={this.state.rightStatus}
-                                                  leftRand={this.state.leftRand}
-                                                  rightRand={this.state.rightRand}
-                                                  leftDeath={this.state.leftDeath}
-                                                  rightDeath={this.state.rightDeath}
-                                                  leftObject={this.state.leftObject}
-                                                  rightObject={this.state.rightObject}
-                                                  leftRef={this.state.leftRef}
-                                                  rightRef={this.state.rightRef}
-                                                  leftWith={this.state.leftWith}
-                                                  rightWith={this.state.rightWith}
-                                                  /> : null}
+        {this.state.displayResults ? <ResultTable data={this.state.data}/> : null}
       </div>
     );
   }
@@ -739,7 +742,7 @@ class TrialLink extends React.Component {
     return(
       <div className="TrialSection" >
         <p>Link: 
-          <span className="text">
+          <span className="Link">
             <a href={this.state.link}>{this.state.link}</a>
           </span>
         </p>
@@ -752,24 +755,9 @@ class TrialLink extends React.Component {
 class SingleCriteria extends React.Component {
   constructor(props){
     super(props);
-
-    this.state = {type: this.props.type, clusionStr: this.props.clusionStr};
-    let str = this.props.clusionStr.split("\n");
-    let inStr = inclusion(str)
-    let exStr = exclusion(str)
-
-    if (this.props.type === "Inclusion"){
-      this.state = {criteria: inStr[this.props.criteria]};
-    }
-    else {
-      this.state = {criteria: exStr[this.props.criteria]};
-    }
+    this.state = {criteria: this.props.criteria}
   }
-  componentDidUpdate(prevProps){
-    if(this.props.clusionStr !== prevProps.clusionStr){
-      this.setState({clusionStr: this.props.clusionStr});
-    }
-  }
+
   render(){
     return(
       <div className="Criteria" >
@@ -809,176 +797,86 @@ function exclusion(str) {
   return ans
 }
 
+class IndividualResult extends React.Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      title: this.props.data.FlowGroupTitle,
+      description: this.props.data.FlowGroupDescription
+    };
+  }
+
+  render(){
+    return(
+      <div className='IndividualResult'>
+        <p className='Header2'>{this.state.title}</p>
+        {this.state.description}
+      </div>
+    );
+  }
+
+}
+
 class ResultTable extends React.Component {
   constructor(props){
     super(props);
-    this.state = { resultChoice: props.resultChoice,
-                   leftFlowGroupTitle: props.leftFlowGroupTitle,
-                   rightFlowGroupTitle: props.rightFlowGroupTitle,
-                   leftStarted: props.leftStarted,
-                   rightStarted: props.rightStarted,
-                   leftCompleted: props.leftCompleted,
-                   rightCompleted: props.rightCompleted,
-                   leftNotCompleted: props.leftNotCompleted,
-                   rightNotCompleted: props.rightNotCompleted,
-
-                   leftAdverse: props.leftAdverse,
-                   rightAdverse: props.rightAdverse,
-                   leftStatus: props.leftStatus,
-                   rightStatus: props.rightStatus,
-                   leftRand: props.leftRand,
-                   rightRand: props.rightRand,
-                   leftDeath: props.leftDeath,
-                   rightDeath: props.rightDeath,
-                   leftObject: props.leftObject,
-                   rightObject: props.rightObject,
-                   leftRef: props.leftRef,
-                   rightRef: props.rightRef,
-                   leftWith: props.leftWith,
-                   rightWith: props.rightWith,
-                 }
+    let results = [];
+    let found = true;
+    if(!this.props.data){
+      this.state = {results: results};
+      return;
+    }
+    if(!this.props.data.hasOwnProperty('ParticipantFlowModule')){
+      found = false;
+    }
+    else if(!this.props.data.ParticipantFlowModule.hasOwnProperty('FlowGroupList')){
+      found = false;
+    }
+    if(found){
+      let groups = this.props.data.ParticipantFlowModule.FlowGroupList.FlowGroup;
+      for(let i = 0; i < groups.length; i++){
+        results.push(<IndividualResult data={groups[i]} key={'result'+ i}/>);
+      }
+    }
+    this.state = { 
+      results: results
+    }
   }
+
   render(){
-    if(this.state.resultChoice === 0){
-      return(
-        <table>
-          <tbody>
-            <tr>
-              <th>Arm/Group Title</th>
-              <th>{this.state.leftFlowGroupTitle}</th>
-              <th>{this.state.rightFlowGroupTitle}</th>
-            </tr>
-            <tr>
-              <td>Started</td>
-              <td>{this.state.leftStarted}</td>
-              <td>{this.state.rightStarted}</td>
-            </tr>
-            <tr>
-              <td>Completed</td>
-              <td>{this.state.leftCompleted}</td>
-              <td>{this.state.rightCompleted}</td>
-            </tr>
-            <tr>
-              <td>Not Completed</td>
-              <td>{this.state.leftNotCompleted}</td>
-              <td>{this.state.rightNotCompleted}</td>
-            </tr>
-            <tr>
-              <td>Adverse Event</td>
-              <td>{this.state.leftAdverse}</td>
-              <td>{this.state.rightAdverse}</td>
-            </tr>
-            <tr>
-              <td>Global deterioration of health status</td>
-              <td>{this.state.leftStatus}</td>
-              <td>{this.state.rightStatus}</td>
-            </tr>
-            <tr>
-              <td>Randomized Not Treated</td>
-              <td>{this.state.leftRand}</td>
-              <td>{this.state.rightRand}</td>
-            </tr>
-            <tr>
-              <td>Death</td>
-              <td>{this.state.leftDeath}</td>
-              <td>{this.state.rightDeath}</td>
-            </tr>
-            <tr>
-              <td>ObjectiveProgression+Progressive Disease</td>
-              <td>{this.state.leftObject}</td>
-              <td>{this.state.rightObject}</td>
-            </tr>
-            <tr>
-              <td>Participant Refused toContinue Treatment</td>
-              <td>{this.state.leftRef}</td>
-              <td>{this.state.rightRef}</td>
-            </tr>
-            <tr>
-              <td>Withdrawal by Subject</td>
-              <td>{this.state.leftWith}</td>
-              <td>{this.state.rightWith}</td>
-            </tr>
-          </tbody>
-        </table>
-      );
-    }
-    else{
-      return(
-        <table>
-          <tbody>
-            <tr>
-              <th>Arm/Group Title</th>
-              <th>{this.state.leftFlowGroupTitle}</th>
-              <th>{this.state.rightFlowGroupTitle}</th>
-            </tr>
-            <tr>
-              <td>Started</td>
-              <td>{this.state.leftStarted}</td>
-              <td>{this.state.rightStarted}</td>
-            </tr>
-            <tr>
-              <td>Completed</td>
-              <td>{this.state.leftCompleted}</td>
-              <td>{this.state.rightCompleted}</td>
-            </tr>
-            <tr>
-              <td>Not Completed</td>
-              <td>{this.state.leftNotCompleted}</td>
-              <td>{this.state.rightNotCompleted}</td>
-            </tr>
-            <tr>
-              <td>Adverse Event</td>
-              <td>{this.state.leftAdverse}</td>
-              <td>{this.state.rightAdverse}</td>
-            </tr>
-            <tr>
-              <td>Global deterioration of health status</td>
-              <td>{this.state.leftStatus}</td>
-              <td>{this.state.rightStatus}</td>
-            </tr>
-            <tr>
-              <td>Randomized Not Treated</td>
-              <td>{this.state.leftRand}</td>
-              <td>{this.state.rightRand}</td>
-            </tr>
-            <tr>
-              <td>Death</td>
-              <td>{this.state.leftDeath}</td>
-              <td>{this.state.rightDeath}</td>
-            </tr>
-            <tr>
-              <td>ObjectiveProgression+Progressive Disease</td>
-              <td>{this.state.leftObject}</td>
-              <td>{this.state.rightObject}</td>
-            </tr>
-            <tr>
-              <td>Participant Refused toContinue Treatment</td>
-              <td>{this.state.leftRef}</td>
-              <td>{this.state.rightRef}</td>
-            </tr>
-            <tr>
-              <td>Withdrawal by Subject</td>
-              <td>{this.state.leftWith}</td>
-              <td>{this.state.rightWith}</td>
-            </tr>
-          </tbody>
-        </table>
-      );
-    }
+    return(
+      <div>
+        {this.state.results}
+      </div>
+    );
   }
 }
 
 class MeasuresBox extends React.Component {
   constructor(props){
     super(props);
-    let numPrimary = JSON.parse(this.props.data).PrimaryOutcomeList.PrimaryOutcome.length;
-    let numSecondary = JSON.parse(this.props.data).SecondaryOutcomeList.SecondaryOutcome.length
+    let numPrimary;
+    if(!JSON.parse(this.props.data).hasOwnProperty('PrimaryOutcomeList')){
+      numPrimary = 0;
+    }else if(!JSON.parse(this.props.data).PrimaryOutcomeList.hasOwnProperty('PrimaryOutcome')){
+      numPrimary = 0;
+    }
+    else{
+      numPrimary = JSON.parse(this.props.data).PrimaryOutcomeList.PrimaryOutcome.length;
+    }
+    let numSecondary;
+    if(!JSON.parse(this.props.data).hasOwnProperty('SecondaryOutcomeList')){
+      numSecondary = 0;
+    }else if(!JSON.parse(this.props.data).SecondaryOutcomeList.hasOwnProperty('SecondaryOutcome')){
+      numSecondary = 0;
+    }else{
+      numSecondary = JSON.parse(this.props.data).SecondaryOutcomeList.SecondaryOutcome.length;
+    }
     let primaryOutcomes = [];
     let secondaryOutcomes = [];
-    console.log('test');
     for(let i = 0; i < numPrimary; i++){
       primaryOutcomes.push(
-        <IndividualMeasure 
+        <IndividualMeasure key={"measure" + i}
         data={JSON.stringify(JSON.parse(this.props.data).PrimaryOutcomeList.PrimaryOutcome[i])}
         type="primary"
         />
@@ -987,7 +885,7 @@ class MeasuresBox extends React.Component {
     }
     for(let i = 0; i < numSecondary; i++){
       secondaryOutcomes.push(
-        <IndividualMeasure 
+        <IndividualMeasure key={"measure" + i}
         data={JSON.stringify(JSON.parse(this.props.data).SecondaryOutcomeList.SecondaryOutcome[i])}
         type="secondary"
         />
@@ -1053,19 +951,34 @@ class IndividualMeasure extends React.Component {
 class CriteriaBox extends React.Component {
   constructor(props){
     super(props);
-    this.state = {type: this.props.type,
-                  clusionStr: this.props.clusionStr,
-                };
+    let str;
+    if(this.props.type === "Inclusion"){
+      this.state = {
+        type: this.props.type,
+        criteria: this.props.data.split("Exclusion Criteria:")[0].split("\n")
+      };
+    }
+    else{
+      if(this.props.data.split("Exclusion Criteria:").length < 2){
+        this.state = {type: this.props.type, criteria: []}
+        return;
+      }
+      this.state = {
+        type: this.props.type,
+        criteria: this.props.data.split("Exclusion Criteria:")[1].split("\n")
+      };
+    }
+
+
     
   }
   render(){
     let i;
     const allCriteria = [];
-    //Right now we are just arbitrarily generating 12 criteria for each section
-    //Easiest way to put in actual criteria for now would probably be to 
-    //hardcode an array of criteria so you can pass the text as a prop using the index (like 'criteria' and 'type').
-    for (i = 0; i < 20; i++) { 
-      allCriteria.push(<SingleCriteria criteria={i} type={this.state.type} clusionStr={this.props.clusionStr} key={"criteria" + i}/>)
+    for (i = 0; i < this.state.criteria.length; i++) { 
+      if(this.state.criteria[i] !== "Inclusion Criteria:" && this.state.criteria[i] !== ""){
+        allCriteria.push(<SingleCriteria criteria={this.state.criteria[i]} type={this.state.type} key={"criteria" + i}/>);
+      }     
     }
     return(
       <div className="CriteriaBox" >
