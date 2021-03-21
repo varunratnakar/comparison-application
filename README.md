@@ -8,3 +8,5 @@ To recreate images:
 
 docker-compose up --force-recreate --build -d
 
+then run docker-compose up to start project with changed code
+
