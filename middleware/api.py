@@ -4,6 +4,8 @@ import requests
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
 
 @app.route('/', methods=['GET'])
 def home():
