@@ -5,6 +5,7 @@ WORKDIR /src
 COPY package.json .
 COPY package-lock.json .
 
+RUN npm update
 RUN npm install
 
 COPY . .
