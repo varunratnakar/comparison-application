@@ -245,6 +245,7 @@ class PatientDisplay extends React.Component {
             />
             <input
             name="excludeDrugWeight"
+            placeholder="0-10"
             style={WeightStyling}
             />
           </div>
