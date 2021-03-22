@@ -54,11 +54,13 @@ class Display extends React.Component{
     fetch('api/sortTrialsByCriteria', {method: 'PUT', body: formData})
       .then(response => response.json())
       .then((result) => {
+        console.log("worked");
+        /*
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
           results.push(result.FullStudiesResponse.FullStudies[i]);
         }
         this.setState({trials: results, numDisplays: result.FullStudiesResponse.FullStudies.length});
-        this.updateCriteria();
+        this.updateCriteria();*/
       },
       (error) => {alert(error)});
     return false;
