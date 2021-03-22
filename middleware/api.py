@@ -53,7 +53,7 @@ def apply_sorting_criteria(trial_data):
 @app.route('/api/sortTrialsByCriteria', methods=['PUT'])
 def api_sortTrialsByCriteria():
     print("in sorting")
-    return "hello"
+    return jsonify("hello")
     keyword = request.form['keyword']
     num_results = request.form['numResults']
 
