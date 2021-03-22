@@ -2,10 +2,11 @@ FROM node:latest
 
 WORKDIR /src
 
+RUN npm update
+
 COPY package.json .
 COPY package-lock.json .
 
-RUN npm update
 RUN npm install
 
 COPY . .
