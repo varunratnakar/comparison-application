@@ -50,7 +50,7 @@ def apply_sorting_criteria(trial_data):
     print(" not done ")
 
 # Sort Trials By Criteria Route
-@app.route('/api/sortTrialsByCriteria', methods=['GET'])
+@app.route('/api/sortTrialsByCriteria', methods=['PUT'])
 def api_sortTrialsByCriteria():
 
     keyword = request.form['keyword']
