@@ -3,58 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { AiFillCaretDown, AiFillCaretUp } from "react-icons/ai"
 
-
-class Search extends React.Component{
-  constructor(props){
-    super(props);
-    this.state = {keyword:'', numResult:'', result:'', test:''};
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.executeSearch = this.props.executeSearch.bind(this);
-  }
-
-  handleChange(event){
-    if(event.target.id === "keyword"){
-      this.setState({keyword:event.target.value});
-    }
-    else if(event.target.id === "numResult"){
-      this.setState({numResult:event.target.value})
-    }
-  }
-
-  handleSubmit(event){
-    event.preventDefault();
-    this.executeSearch(this.state.keyword, this.state.numResult);
-  }
-
-  render(){
-    const BarStyling = {width:"20rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
-    return(
-      <form onSubmit={this.handleSubmit}>
-        <input 
-          id="keyword"
-          style={BarStyling}
-          value={this.state.keyword}
-          onChange={this.handleChange}
-          placeholder={"search clinical trials"}
-        />
-        <input 
-          id="numResult"
-          type="text"
-          style={BarStyling}
-          value={this.state.numResult}
-          onChange={this.handleChange}
-          placeholder= {"number of results"}
-        />
-        <input 
-          type="submit"
-        />
-      </form>
-      );
-  }
-
-}
-
 //This is the main (parent) class. This is the first component to be created.
 class Display extends React.Component{
   //Runs only on refresh
@@ -64,7 +12,6 @@ class Display extends React.Component{
     const wrappers = []; //array of trial display wrappers
     let i;
     this.executeSearch=this.executeSearch.bind(this);
-    this.sortResults = this.sortResults.bind(this);
       
     /*for (i = 0; i < numDisplays; i++) { 
       wrappers.push(<TrialWrapper key={"key"+ i} numDisplays={numDisplays}
@@ -92,8 +39,9 @@ class Display extends React.Component{
     this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, trial1: null, trial2: null}; 
   }
 
-  executeSearch(keyword, numResult){
-    keyword = keyword.split(" ");
+  executeSearch(formData){
+    
+    let keyword = formData.get('keyword').split(" ");
     let search = "";
     for(let i = 0; i < keyword.length; i++){
       search += keyword[i];
@@ -101,9 +49,10 @@ class Display extends React.Component{
         search += "+";
       }
     }
-    let queryString = "/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=" + numResult + "&fmt=json";
+    formData.set('keyword', search);
     let results = []
-    fetch(queryString)
+    console.log(formData.get('keyword'));
+    fetch('/api', {method: 'PUT', body: formData})
       .then(response => response.json())
       .then((result) => {
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
@@ -115,44 +64,6 @@ class Display extends React.Component{
       (error) => {alert(error)});
     return false;
 
-  }
-
-  //This function is called when the sorting criteria form is submitted. Inputs are the elements from the form.
-  sortResults(_age, condition, inc, exc, ongoing, completed, includeDrug, excludeDrug){
-    let currentResults = this.state.trials; //Retrieve the current list of trials
-    let currentResultsJSON = JSON.stringify(currentResults)
-
-    const content = {
-      data: currentResultsJSON,
-      age: _age,
-      order: "ascending"
-    };
-
-    const requestMetadata = {
-      method: 'GET',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: content
-    };
-    
-    fetch("http://127.0.0.1:5000/api/sortTrialsByCriteria", requestMetadata)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            trials: result.items
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          alert(error)
-        }
-      )
-    
-    this.updateCriteria(); //Re-render our elements
   }
 
 
@@ -199,9 +110,8 @@ class Display extends React.Component{
   render(){
     return(
       <div className="Background">
-        <Search executeSearch={this.executeSearch}/>
         <div className = 'PatientAndTrials'>
-          <PatientDisplay sortResults={this.sortResults}/>
+          <PatientDisplay executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
             {this.state.wrappers}
           </div>
@@ -216,127 +126,131 @@ class Display extends React.Component{
 class PatientDisplay extends React.Component {
   constructor(props){
     super(props);
-
-    this.state = {
-      m_age: '',
-      m_condition: '',
-      m_inclusion: '',
-      m_exclusion: '',
-      m_ongoing: true,
-      m_completed: true,
-      m_includeDrug: '',
-      m_excludeDrug: '',
-    }
-
-    this.handleAgeChange = this.handleAgeChange.bind(this);
-    this.handleConditionChange = this.handleConditionChange.bind(this);
-    this.handleInclusionChange = this.handleInclusionChange.bind(this);
-    this.handleExclusionChange = this.handleExclusionChange.bind(this);
-    this.handleOngoingChange = this.handleOngoingChange.bind(this);
-    this.handleCompletedChange = this.handleCompletedChange.bind(this);
-    this.handleIncludeDrugChange = this.handleIncludeDrugChange.bind(this);
-    this.handleExcludeDrugChange = this.handleExcludeDrugChange.bind(this);
+    this.state = {executeSearch: this.props.executeSearch};
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.sortResults = this.props.sortResults.bind(this);
 
-  }
-
-  handleAgeChange(event){
-    this.setState({m_age: event.target.value});
-    console.log(this.state.age);
-  }
-  handleConditionChange(event){
-    this.setState({m_condition: event.target.value});
-  }
-  handleInclusionChange(event){
-    this.setState({m_inclusion: event.target.value});
-  }
-  handleExclusionChange(event){
-    this.setState({m_exclusion: event.target.value});
-  }
-  handleOngoingChange(event){
-    this.setState({m_ongoing: !this.state.m_ongoing});
-  }
-  handleCompletedChange(event){
-    this.setState({m_completed: !this.state.m_completed});
-  }
-  handleIncludeDrugChange(event){
-    this.setState({m_includeDrug: event.target.value});
-  }
-  handleExcludeDrugChange(event){
-    this.setState({m_excludeDrug: event.target.value});
   }
 
   handleSubmit(event){
     event.preventDefault();
-    this.sortResults(this.state.m_age, this.state.m_condition, this.state.m_inclusion, this.state.m_exclusion,
-      this.state.m_ongoing, this.state.m_completed, this.state.m_includeDrug, this.state.m_excludeDrug);
+    let formData = new FormData(event.target);
+    this.state.executeSearch(formData);
   }
 
+  /*REQUEST FORMAT: key/value pairs with HTML form
+  keys: 'keyword', 'numResult', 'age', 'ageWeight', 'condition', 'conditionWeight', 'inclusion', 'inclusionWeight',
+  'exclusion', 'exclusionWeight', 'ongoing', 'includeDrug', 'includeDrugWeight', 'excludeDrug, excludeDrugWeight'
+  */
+
   render(){
+    const BarStyling = {width:"20rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
+    const WeightStyling = {width:"2rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     return(
-      <div className='PatientDisplay' style={{width:'200px'}}>
-        <p className="Header1">Sorting Criteria</p>
+      <div className='PatientDisplay'>
         <form onSubmit={this.handleSubmit}>
+          <p className="Header1">Search Parameters</p>
+          <div>
+            <input 
+            name="keyword"
+            style={BarStyling}
+            onChange={this.handleKeywordChange}
+            placeholder={"Enter Keyword(s) *REQUIRED"}
+            />
+          </div>
+          <div>
+            <input 
+            name="numResult"
+            type="text"
+            style={BarStyling}
+            placeholder= {"number of results to return (default 10)"}
+            />
+          </div>
+          <p className="Header1">Sorting Criteria</p>
           <p className="Header2">Patient Information</p>
-          <input
-          className="TextInput"
-          placeholder="Age"
-          value={this.state.m_age}
-          onChange={this.handleAgeChange}
-          />
-          <input
-          className="TextInput"
-          placeholder="Condition"
-          value={this.state.m_condition}
-          onChange={this.handleConditionChange}
-          />
-          <input
-          className="TextInput"
-          placeholder="Inclusion Criteria"
-          value={this.state.m_inclusion}
-          onChange={this.handleInclusionChange}
-          />
-          <input
-          className="TextInput"
-          placeholder="Exlusion Criteria"
-          value={this.state.m_exclusion}
-          onChange={this.handleExclusionChange}
-          />
+          <div>
+            <input
+            name="age"
+            style={BarStyling}
+            className="TextInput"
+            placeholder="Age"
+            />
+            <input
+            name="ageWeight"
+            style={WeightStyling}
+            placeholder="0-10"
+            />
+          </div>
+          <div>
+            <input
+            name="condition"
+            style={BarStyling}
+            placeholder="Condition"
+            />
+            <input
+            name="conditionWeight"
+            placeholder="0-10"
+            style={WeightStyling}
+            />
+          </div>
+          <div>
+            <input
+            name="inclusion"
+            style={BarStyling}
+            placeholder="Inclusion Criteria"
+            />
+            <input
+            name="inclusionWeight"
+            style={WeightStyling}
+            placeholder="0-10"
+            />
+          </div>
+          <div>
+            <input
+            name="exclusion"
+            style={BarStyling}
+            placeholder="Exlusion Criteria"
+            />
+            <input
+            name="exlusionWeight"
+            style={WeightStyling}
+            placeholder="0-10"
+            />
+          </div>
           <p className="Header2">Trial Status</p>
           <input
           className="TextInput"
           type="checkbox"
-          id="option1"
-          value="Study Ongoing"
-          onChange={this.handleOngoingChange}
+          name="ongoing"
           />
-          <label htmlFor="option1">Study Ongoing</label>
+          <label htmlFor="option1">Study Must be Completed</label>
           <br/>
-          <input
-          className="TextInput"
-          type="checkbox"
-          id="option3"
-          value="Study Completed"
-          onChange={this.handleCompletedChange}
-          />
-          <label htmlFor="option3">Study Completed</label>
           <p className="Header2">Drug Information</p>
-          <input
-          className="TextInput"
-          placeholder="Include Drug"
-          value={this.state.m_includeDrug}
-          onChange={this.handleIncludeDrugChange}
-          />
-          <input
-          className="TextInput"
-          placeholder="Exclude Drug"
-          value={this.state.m_excludeDrug}
-          onChange={this.handleExcludeDrugChange}
-          />
+          <div>
+            <input
+            name="includeDrug"
+            placeholder="Include Drug"
+            style={BarStyling}
+            />
+            <input
+            name="includeDrugWeight"
+            placeholder="0-10"
+            style={WeightStyling}
+            />
+          </div>
+          <div>
+            <input
+            className="TextInput"
+            placeholder="Exclude Drug"
+            style={BarStyling}
+            />
+            <input
+            name="excludeDrugWeight"
+            style={WeightStyling}
+            />
+          </div>
           <br/>
           <br/>
-          <input type='submit' value="Apply Criteria"/>
+          <input type='submit' value="Search"/>
         </form>
       </div>
     );
