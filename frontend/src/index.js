@@ -52,7 +52,7 @@ class Display extends React.Component{
     formData.set('keyword', search);
     let results = []
     console.log(formData.get('keyword'));
-    fetch('/api', {method: 'PUT', body: formData})
+    fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'PUT', body: formData})
       .then(response => response.json())
       .then((result) => {
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
