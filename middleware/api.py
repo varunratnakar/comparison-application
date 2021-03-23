@@ -12,9 +12,10 @@ CORS(app, support_credentials=True)
 @app.route('/', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def home():
-    return '''
-    <h1>Comparison Backend</h1>
-    '''
+    return jsonify(status=True,message="Successfully sorted trials",)
+    #return '''
+    #<h1>Comparison Backend</h1>
+    #'''
 
 # _______________________ API START _______________________ #
 # request body:
