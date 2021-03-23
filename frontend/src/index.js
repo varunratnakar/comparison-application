@@ -50,10 +50,10 @@ class Display extends React.Component{
         // result.data contains all sorted trails
         console.log(result.data);
         
-        for(let i = 0; i < result.data.FullStudiesResponse.FullStudies.length; i++){
-          results.push(result.data.FullStudiesResponse.FullStudies[i]);
+        for(let i = 0; i < result.data.length; i++){
+          results.push(result.data[i]);
         }
-        this.setState({trials: results, numDisplays: result.data.FullStudiesResponse.FullStudies.length});
+        this.setState({trials: results, numDisplays: result.data.length});
         this.updateCriteria();
       },
       (error) => {alert(error)});
