@@ -82,7 +82,7 @@ def api_sortTrialsByCriteria():
         data=trial_data
     )
     
-    response.headers.add("Access-Control-Allow-Origin", "*")
+    #response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
 # sort trials from highest score to lowest (if there is no score, put this trial to tail)
