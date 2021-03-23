@@ -49,12 +49,12 @@ class Display extends React.Component{
         console.log(result);
         // result.data contains all sorted trails
         console.log(result.data);
-        /*
-        for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
+        
+        for(let i = 0; i < result.data.FullStudiesResponse.FullStudies.length; i++){
           results.push(result.FullStudiesResponse.FullStudies[i]);
         }
         this.setState({trials: results, numDisplays: result.FullStudiesResponse.FullStudies.length});
-        this.updateCriteria();*/
+        this.updateCriteria();
       },
       (error) => {alert(error)});
     return false;
