@@ -40,21 +40,16 @@ class Display extends React.Component{
   }
 
   executeSearch(formData){
-    
-    let keyword = formData.get('keyword').split(" ");
-    let search = "";
-    for(let i = 0; i < keyword.length; i++){
-      search += keyword[i];
-      if(i !== keyword.length-1){
-        search += "+";
-      }
-    }
-    formData.set('keyword', search);
+
+    formData.set('keyword', formData.get('keyword'));
     let results = []
     fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'POST', body: formData})
       .then(response => response)
       .then((result) => {
         console.log(result);
+        console.log(result.body);
+        console.log(result.data);
+        console.log("response");
         /*
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
           results.push(result.FullStudiesResponse.FullStudies[i]);
