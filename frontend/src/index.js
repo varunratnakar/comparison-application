@@ -44,12 +44,11 @@ class Display extends React.Component{
     formData.set('keyword', formData.get('keyword'));
     let results = []
     fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'POST', body: formData})
-      .then(response => response)
+      .then(response => response.json())
       .then((result) => {
         console.log(result);
-        console.log(result.body);
+        // result.data contains all sorted trails
         console.log(result.data);
-        console.log("response");
         /*
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
           results.push(result.FullStudiesResponse.FullStudies[i]);
