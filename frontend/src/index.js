@@ -51,9 +51,9 @@ class Display extends React.Component{
         console.log(result.data);
         
         for(let i = 0; i < result.data.FullStudiesResponse.FullStudies.length; i++){
-          results.push(result.FullStudiesResponse.FullStudies[i]);
+          results.push(result.data.FullStudiesResponse.FullStudies[i]);
         }
-        this.setState({trials: results, numDisplays: result.FullStudiesResponse.FullStudies.length});
+        this.setState({trials: results, numDisplays: result.data.FullStudiesResponse.FullStudies.length});
         this.updateCriteria();
       },
       (error) => {alert(error)});
