@@ -54,7 +54,7 @@ class Display extends React.Component{
     fetch('api/sortTrialsByCriteria', {method: 'PUT', body: formData})
       .then(response => response)
       .then((result) => {
-        console.log(response);
+        console.log(result);
         /*
         for(let i = 0; i < result.FullStudiesResponse.FullStudies.length; i++){
           results.push(result.FullStudiesResponse.FullStudies[i]);
