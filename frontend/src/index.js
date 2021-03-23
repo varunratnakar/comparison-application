@@ -139,6 +139,7 @@ class PatientDisplay extends React.Component {
 
   render(){
     const BarStyling = {width:"17rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
+    const smallerBar = {width:"14rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     const WeightStyling = {width:"2rem",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     return(
       <div className='PatientDisplay'>
@@ -165,7 +166,7 @@ class PatientDisplay extends React.Component {
           <div>
             <input
             name="age"
-            style={BarStyling}
+            style={smallerBar}
             className="TextInput"
             placeholder="Age"
             />
@@ -178,7 +179,7 @@ class PatientDisplay extends React.Component {
           <div>
             <input
             name="condition"
-            style={BarStyling}
+            style={smallerBar}
             placeholder="Condition"
             />
             <input
@@ -190,7 +191,7 @@ class PatientDisplay extends React.Component {
           <div>
             <input
             name="inclusion"
-            style={BarStyling}
+            style={smallerBar}
             placeholder="Inclusion Criteria"
             />
             <input
@@ -202,7 +203,7 @@ class PatientDisplay extends React.Component {
           <div>
             <input
             name="exclusion"
-            style={BarStyling}
+            style={smallerBar}
             placeholder="Exlusion Criteria"
             />
             <input
@@ -224,7 +225,7 @@ class PatientDisplay extends React.Component {
             <input
             name="includeDrug"
             placeholder="Include Drug"
-            style={BarStyling}
+            style={smallerBar}
             />
             <input
             name="includeDrugWeight"
@@ -236,7 +237,7 @@ class PatientDisplay extends React.Component {
             <input
             className="TextInput"
             placeholder="Exclude Drug"
-            style={BarStyling}
+            style={smallerBar}
             />
             <input
             name="excludeDrugWeight"
