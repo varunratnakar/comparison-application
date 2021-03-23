@@ -54,6 +54,7 @@ def apply_sorting_criteria(trial_data):
 # Sort Trials By Criteria Route
 @app.route('/api/sortTrialsByCriteria', methods=['PUT'])
 def api_sortTrialsByCriteria():
+    print("hello world", file=sys.stderr)
     response = Response(status=200)
     return response
     keyword = request.form['keyword']
