@@ -28,7 +28,7 @@ def get_trials(keyword, num_results):
         if i != last_ind:
             search += "+"
             
-    query_string = "https://clinicaltrials.gov/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=" + num_results + "&fmt=json"
+    query_string = "https://clinicaltrials.gov/api/query/full_studies?expr=heart&min_rnk=1&max_rnk=" + num_results + "&fmt=json"
     response = requests.get(query_string)
 
     full_studies_response = response.json()['FullStudiesResponse']
