@@ -51,7 +51,7 @@ class Display extends React.Component{
     }
     formData.set('keyword', search);
     let results = []
-    fetch('api/sortTrialsByCriteria', {method: 'PUT', body: formData})
+    fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'POST', body: formData})
       .then(response => response)
       .then((result) => {
         console.log(result);

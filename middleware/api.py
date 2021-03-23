@@ -1,13 +1,16 @@
 import flask
 from flask import request, jsonify
+from flask_cors import CORS, cross_origin
 import requests
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+CORS(app, support_credentials=True)
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def home():
     return '''
     <h1>Comparison Backend</h1>
@@ -52,25 +55,29 @@ def apply_sorting_criteria(trial_data):
     print(" not done ")
 
 # Sort Trials By Criteria Route
-@app.route('/api/sortTrialsByCriteria', methods=['PUT'])
+@app.route('/api/sortTrialsByCriteria', methods=['POST'])
 def api_sortTrialsByCriteria():
-    print("hello world", file=sys.stderr)
-    response = Response(status=200)
-    return response
-    keyword = request.form['keyword']
-    num_results = request.form['numResults']
+    
+    # keyword = ''
+    # keyword = request.form['keyword']
+    # num_results = ''
+    # num_results = request.form['numResults']
 
-    print(keyword + ", " + num_results)
+    # print(keyword + ", " + num_results)
     # get trial data based on keyword and numResults from front end request
-    trial_data = get_trials(keyword, num_results)
+    # trial_data = get_trials(keyword, num_results)
 
-    apply_sorting_criteria(trial_data)
+    # apply_sorting_criteria(trial_data)
+    
+    # response = jsonify(
+    #     status=True,
+    #     message="Successfully sorted trials",
+    #     data=trial_data
+    # )
 
-    return jsonify(
-        status=True,
-        message="Successfully sorted trials",
-        data=trial_data
-    )
+    # response.headers.add("Access-Control-Allow-Origin", "*")
+
+    return jsonify(status=True,message="Successfully sorted trials",)
 
 # sort trials from highest score to lowest (if there is no score, put this trial to tail)
 def sort_trials(full_studies):
