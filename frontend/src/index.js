@@ -270,6 +270,7 @@ class TableDisplay extends React.Component {
     super(props);
     this.createData = this.createData.bind(this);
     this.state = {trials: this.props.data};
+    console.log(this.props.data);
 
   }
 
