@@ -45,7 +45,7 @@ class Display extends React.Component{
         />);
     }*/
     //Since we want to use these values elsewhere, add them to the state since state is persistent (each componenet instance has own state).
-    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, trial1: null, trial2: null}; 
+    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, ready: false, table: true}; 
   }
 
   executeSearch(formData){
@@ -90,7 +90,7 @@ class Display extends React.Component{
         />);
     }
     //Calling setState triggers the render function to run and essentially updates the component
-    this.setState({wrappers: wrappers}) 
+    this.setState({wrappers: wrappers, ready: true}); 
   }
 
   //Toggles the criteria dropdowns and the calls updateCriteria
@@ -118,7 +118,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
-            {table ? <TableDisplay/> : this.state.wrappers}
+            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.wrappers}/> : this.state.wrappers) : null}
           </div>
         </div>
         
@@ -269,12 +269,14 @@ class TableDisplay extends React.Component {
   constructor(props){
     super(props);
     this.createData = this.createData.bind(this);
+    this.state = {trials: this.props.data};
 
   }
 
 
-  createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
+  createData(trial) {
+
+    return { trial.rank, trial.rank, trial.rank, trial.rank, trial.rank, trial.rank, trial.rank };
   }
 
 
@@ -288,20 +290,18 @@ class TableDisplay extends React.Component {
 
     const classes = useStyles;
 
-    const rows = [
-    this.createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    this.createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    this.createData('Eclair', 262, 16.0, 24, 6.0),
-    this.createData('Cupcake', 305, 3.7, 67, 4.3),
-    this.createData('Gingerbread', 356, 16.0, 49, 3.9),
-    ];
+    const trials = [];
+    for(int i = 0; i < this.state.trials.length; i++){
+      trials.push(this.createData(this.state.trials[i]));
+    }
 
     return (
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Age</TableCell>
+              <TableCell>Trial</TableCell>
+              <TableCell align="right">Age</TableCell>
               <TableCell align="right">Condition</TableCell>
               <TableCell align="right">Inclusion Criteria</TableCell>
               <TableCell align="right">Exclusion Criteria</TableCell>
