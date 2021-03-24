@@ -282,7 +282,11 @@ class TableDisplay extends React.Component {
     return {rank, rank, rank, rank, rank, rank, rank };
   }
 
-
+  componentDidUpdate(prevProps){
+    if(this.props.data != prevProps.data){
+      this.setState({trials: this.props.data});
+    }
+  }
   
   render(){
     const useStyles = makeStyles({
@@ -305,7 +309,7 @@ class TableDisplay extends React.Component {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Trial</TableCell>
+              <TableCell>CT Rank</TableCell>
               <TableCell align="right">Age</TableCell>
               <TableCell align="right">Condition</TableCell>
               <TableCell align="right">Inclusion Criteria</TableCell>
