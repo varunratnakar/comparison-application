@@ -292,7 +292,8 @@ class TableDisplay extends React.Component {
     const classes = useStyles;
 
     const trials = [];
-    for(int i = 0; i < this.state.trials.length; i++){
+    let i;
+    for(i = 0; i < this.state.trials.length; i++){
       trials.push(this.createData(this.state.trials[i]));
     }
 
