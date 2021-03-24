@@ -112,12 +112,13 @@ class Display extends React.Component{
 
   //Displays to the screen
   render(){
+    var table = true;
     return(
       <div className="Background">
         <div className = 'PatientAndTrials'>
           <PatientDisplay executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
-            {this.state.wrappers}
+            {table ? <TableDisplay/> : this.state.wrappers}
           </div>
         </div>
         
