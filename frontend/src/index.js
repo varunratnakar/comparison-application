@@ -301,11 +301,13 @@ class TableDisplay extends React.Component {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
+              <TableCell>Age</TableCell>
+              <TableCell align="right">Condition</TableCell>
+              <TableCell align="right">Inclusion Criteria</TableCell>
+              <TableCell align="right">Exclusion Criteria</TableCell>
+              <TableCell align="right">Trial Completed</TableCell>
+              <TableCell align="right">Include Drug</TableCell>
+              <TableCell align="right">Exclude Drug</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
