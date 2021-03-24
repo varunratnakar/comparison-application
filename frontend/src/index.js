@@ -277,7 +277,7 @@ class TableDisplay extends React.Component {
   createData(trial) {
     //trial = JSON.parse(trial);
     let rank = trial.rank;
-    console.log(rank);
+    console.log(trial);
     return {rank, rank, rank, rank, rank, rank, rank };
   }
 
