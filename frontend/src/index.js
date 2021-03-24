@@ -298,6 +298,7 @@ class TableDisplay extends React.Component {
     for(i = 0; i < this.state.trials.length; i++){
       trials.push(this.createData(this.state.trials[i]));
     }
+    console.log(trials);
 
     return (
       <TableContainer component={Paper}>
