@@ -51,7 +51,7 @@ def api_sortTrialsByCriteria():
     ### Assign a default value For testing ###
     # keyword = 'heart'
     keyword = request.form['keyword']
-    num_results = '21'
+    num_results = request.form['numResults']
     # num_results = request.form['numResults']
     
     
