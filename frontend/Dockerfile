@@ -7,6 +7,8 @@ RUN npm update
 COPY package.json .
 COPY package-lock.json .
 
+RUN npm install @material-ui/core
+
 RUN npm install
 
 COPY . .
