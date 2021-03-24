@@ -51,9 +51,7 @@ def api_sortTrialsByCriteria():
     ### Assign a default value For testing ###
     # keyword = 'heart'
     keyword = request.form['keyword']
-    num_results = 10
-    test = request.form['numResult']
-    # num_results = request.form['numResults']
+    num_results = request.form['numResult']
     
     
     ### Assign a default value For testing ###
@@ -88,7 +86,7 @@ def api_sortTrialsByCriteria():
     
     response = jsonify(
         status=True,
-        message="Successfully sorted trials" + test,
+        message="Successfully sorted trials",
         data=trial_data
     )
     
