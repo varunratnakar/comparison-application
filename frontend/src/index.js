@@ -266,7 +266,8 @@ class PatientDisplay extends React.Component {
 class TableDisplay extends React.Component {
 
   constructor(props){
-
+    super(props);
+    this.createData = this.createData.bind(this);
 
   }
 
@@ -284,6 +285,7 @@ class TableDisplay extends React.Component {
       },
     });
 
+    const classes = useStyles;
 
     const rows = [
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
