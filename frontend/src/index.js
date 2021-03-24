@@ -319,7 +319,7 @@ class TableDisplay extends React.Component {
             {trials.map((row) => (
               <TableRow key={row.name}>
                 <TableCell component="th" scope="row">
-                  {row.Trial}
+                  {row.rank}
                 </TableCell>
                 <TableCell align="right">{row.calories}</TableCell>
                 <TableCell align="right">{row.fat}</TableCell>
