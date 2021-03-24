@@ -32,7 +32,11 @@ def get_trials(keyword, num_results):
     response = requests.get(query_string)
 
     full_studies_response = response.json()['FullStudiesResponse']
-    full_studies = full_studies_response['FullStudies']
+    try:
+        full_studies = full_studies_response['FullStudies']
+    except KeyError:
+        print("No FullStudies Section")
+        return None
     
     return full_studies
     
@@ -45,9 +49,9 @@ def apply_sorting_criteria(trial_data, criteria):
 def api_sortTrialsByCriteria():
     
     ### Assign a default value For testing ###
-    # keyword = 'breast cancer'
+    # keyword = 'heart'
     keyword = request.form['keyword']
-    num_results = '30'
+    num_results = '21'
     # num_results = request.form['numResults']
     
     
@@ -73,7 +77,12 @@ def api_sortTrialsByCriteria():
     
     # get trial data based on keyword and numResults from front end request
     trial_data = get_trials(keyword, num_results)
-
+    if trial_data == None:
+        return jsonify(
+            status=False,
+            message="Cannot search trials"
+        )
+    
     apply_sorting_criteria(trial_data, criteria)
     
     response = jsonify(
@@ -137,31 +146,42 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
             # Check eligibilityCriteria
             try:
                 eligibility_criteria=eligibility_module['EligibilityCriteria']
+                eligibility_criteria=eligibility_criteria.split('\n')
+                eligibility_criteria = filter(None, eligibility_criteria)
                 
                 in_criteria=False
                 ex_criteria=False
-                in_str=eligibility_criteria
-                ex_str=eligibility_criteria
+                in_list=[]
+                ex_list=[]
+
+                for element in eligibility_criteria:
+                    if element == 'Inclusion Criteria:':
+                        in_criteria=True
+                        ex_criteria=False
+                        continue
+                    elif element == 'Exclusion Criteria:':
+                        in_criteria=False
+                        ex_criteria=True
+                        continue
+                    
+                    if in_criteria:
+                        in_list.append(element)
+                    if ex_criteria:
+                        ex_list.append(element)
                 
                 # Check inclusion
-                if 'Inclusion Criteria:' in eligibility_criteria:
-                    in_criteria=True
-                    
-                # Check exclusion
-                if 'Exclusion Criteria:' in eligibility_criteria:
-                    ex_criteria=True
-                    if in_criteria:
-                        in_str, ex_str = eligibility_criteria.split('Exclusion Criteria:')
-                        
-                if in_criteria:
-                    if not criteria['inclusion'] == '':
-                        if criteria['inclusion'] in in_str:
+                if not criteria['inclusion'] == '':
+                    for element in in_list:
+                        if criteria['inclusion'] in element:
                             score+=criteria['inclusionWeight']
-                    
-                if ex_criteria:
-                    if not criteria['exclusion'] == '':
-                        if criteria['exclusion'] in ex_str:
+                            break
+                
+                # Check exclusion
+                if not criteria['exclusion'] == '':
+                    for element in ex_list:
+                        if criteria['exclusion'] in element:
                             score+=criteria['exclusionWeight']
+                            break
             except KeyError:
                 print("No EligibilityCriteria Section")
             
