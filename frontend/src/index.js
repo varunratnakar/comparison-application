@@ -67,7 +67,7 @@ class Display extends React.Component{
         break;
       }
     }
-    this.setState({curTrial: curTrial, displayRank: trialRank table: false});
+    this.setState({curTrial: curTrial, displayRank: trialRank, table: false});
   }
 
   //Toggles the criteria dropdowns and the calls updateCriteria
