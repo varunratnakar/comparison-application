@@ -66,7 +66,7 @@ class Display extends React.Component{
         break;
       }
     }
-    this.setState({curTrial: curTrial});
+    this.setState({curTrial: curTrial, table: false});
   }
 
   //When we change the dropdown state in toggleInCriteria or toggleOutCriteria, we need to re-create the display wrappers
