@@ -93,7 +93,7 @@ class Display extends React.Component{
       <div className="Background">
         <div className = 'PatientAndTrials'>
           <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch}/>
-          <div className="TrialCollection">
+          <div className="TrialCollection" overflow="auto">
             {this.state.ready ? (this.state.table ? <TableDisplay overflow="auto" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
         </div>
