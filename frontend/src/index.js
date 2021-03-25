@@ -67,32 +67,24 @@ class Display extends React.Component{
         break;
       }
     }
-    this.setState({curTrial: curTrial, table: false});
-  }
-
-  //When we change the dropdown state in toggleInCriteria or toggleOutCriteria, we need to re-create the display wrappers
-  //to reflect the change
-  updateCriteria(){
-    this.setState({curTrial: curTrial});
- 
-    //Calling setState triggers the render function to run and essentially updates the component
+    this.setState({curTrial: curTrial, displayRank: trialRank table: false});
   }
 
   //Toggles the criteria dropdowns and the calls updateCriteria
   toggleInCriteria(){
-    this.setState({displayInCriteria: !this.state.displayInCriteria}, () => this.updateCriteria());
+    this.setState({displayInCriteria: !this.state.displayInCriteria}, () => this.displayTrial(this.state.displayRank));
   }
 
   toggleOutCriteria(){
-    this.setState({displayOutCriteria: !this.state.displayOutCriteria}, () => this.updateCriteria());
+    this.setState({displayOutCriteria: !this.state.displayOutCriteria}, () => this.displayTrial(this.state.displayRank));
   }
 
   toggleOutMeasures(){
-    this.setState({displayOutMeasures: !this.state.displayOutMeasures}, () => this.updateCriteria());
+    this.setState({displayOutMeasures: !this.state.displayOutMeasures}, () => this.displayTrial(this.state.displayRank));
   }
 
   toggleResults(){
-    this.setState({displayResults: !this.state.displayResults}, () => this.updateCriteria());
+    this.setState({displayResults: !this.state.displayResults}, () => this.displayTrial(this.state.displayRank);
   }
 
   //Displays to the screen
