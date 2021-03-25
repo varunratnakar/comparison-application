@@ -84,7 +84,7 @@ class Display extends React.Component{
   }
 
   toggleResults(){
-    this.setState({displayResults: !this.state.displayResults}, () => this.displayTrial(this.state.displayRank);
+    this.setState({displayResults: !this.state.displayResults}, () => this.displayTrial(this.state.displayRank));
   }
 
   //Displays to the screen
