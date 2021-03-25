@@ -323,7 +323,7 @@ class TableDisplay extends React.Component {
           </TableHead>
           <TableBody>
             {trials.map((row) => (
-              <TableRow key={row.name} onClick={this.displayTrial(row.rank)}>
+              <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
                 <TableCell component="th" scope="row">
                   {row.score}
                 </TableCell>
