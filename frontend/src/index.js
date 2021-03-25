@@ -41,7 +41,6 @@ class Display extends React.Component{
           results.push(result.data[i]);
         }
         this.setState({trials: results, numDisplays: result.data.length});
-        this.updateCriteria();
       },
       (error) => {alert(error)});
     return false;
