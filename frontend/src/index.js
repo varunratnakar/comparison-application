@@ -278,7 +278,8 @@ class TableDisplay extends React.Component {
   createData(trial) {
     //trial = JSON.parse(trial);
     let score = trial.score;
-    let age = trial.criteriaMatch.age;
+    let criteriaMatch = JSON.parse(trial.criteriaMatch);
+    let age = criteriaMatch.age;
     console.log(trial);
     return {score, age};
   }
