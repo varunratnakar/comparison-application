@@ -49,14 +49,14 @@ def apply_sorting_criteria(trial_data, criteria):
 def api_sortTrialsByCriteria():
     
     ### Assign a default value For testing ###
-    # keyword = 'heart'
+    # keyword = 'paloma'
     keyword = request.form['keyword']
+    # num_results=2
     num_results = request.form['numResult']
-    
     
     ### Assign a default value For testing ###
     criteria = {
-        'age':'18',
+        'age':'31',
         'ageWeight':2,
         'condition':'',
         'conditionWeight':1,
@@ -93,6 +93,18 @@ def api_sortTrialsByCriteria():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
+def set_criteria_match():
+    result = {
+        'age':False,
+        'condition':False,
+        'inclusion':False,
+        'exclusion':False,
+        'ongoing':False,
+        'includeDrug':False,
+        'excludeDrug':False
+    }
+    return result
+
 # sort trials from highest score to lowest (if there is no score, put this trial to tail)
 def sort_trials(trial_data):
     def score(trial_data):
@@ -121,7 +133,7 @@ def parse_request(request):
     return json.dumps(result)
 
 # Assign score to all trials
-def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion, exclusion, ongoing, includeDrug, excludeDrug):
+def set_up_score(trial_data, criteria):
     for study in trial_data:
         try:
             protocol_section=study['Study']['ProtocolSection']
@@ -130,18 +142,46 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
             continue
             
         score=0
+        criteriaMatch=set_criteria_match()
         if protocol_section['EligibilityModule']:
             eligibility_module=protocol_section['EligibilityModule']
             # Check if age is in range
+            min_age=''
+            max_age=''
             try:
                 min_age = eligibility_module['MinimumAge']
-                int_min_age = int(min_age.split(' ')[0])
-                if not criteria['age'] == '':
-                    if int(criteria['age'])>int_min_age:
-                        score+=criteria['ageWeight']
             except KeyError:
                 print("No minimumAge Section")
+                
+            try:
+                max_age = eligibility_module['MaximumAge']
+            except KeyError:
+                print("No MaximumAge Section")
             
+            # Convert to int
+            int_min_age=0
+            int_max_age=0
+            if min_age != '':
+                int_min_age = int(min_age.split(' ')[0])
+            if max_age != '':
+                int_max_age = int(max_age.split(' ')[0])
+            
+            if not criteria['age'] == '':
+                int_age=int(criteria['age'])
+                print int_age, int_min_age, int_max_age
+                if min_age != '' and max_age != '':
+                    if int_age>=int_min_age and int_age<=int_max_age:
+                        score+=criteria['ageWeight']
+                        criteriaMatch['age']=True
+                elif min_age != '':
+                    if int_age>=int_min_age:
+                        score+=criteria['ageWeight']
+                        criteriaMatch['age']=True
+                elif max_age != '':
+                    if int_age<=int_max_age:
+                        score+=criteria['ageWeight']
+                        criteriaMatch['age']=True
+                
             # Check eligibilityCriteria
             try:
                 eligibility_criteria=eligibility_module['EligibilityCriteria']
@@ -173,6 +213,7 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
                     for element in in_list:
                         if criteria['inclusion'] in element:
                             score+=criteria['inclusionWeight']
+                            criteriaMatch['inclusion']=True
                             break
                 
                 # Check exclusion
@@ -180,6 +221,7 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
                     for element in ex_list:
                         if criteria['exclusion'] in element:
                             score+=criteria['exclusionWeight']
+                            criteriaMatch['exclusion']=True
                             break
             except KeyError:
                 print("No EligibilityCriteria Section")
@@ -190,6 +232,7 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
             if not criteria['condition'] == '':
                 if criteria['condition'] in con_list:
                     score+=criteria['conditionWeight']
+                    criteriaMatch['condition']=True
         except KeyError:
             print("No condition Section")
         
@@ -199,9 +242,7 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
             if criteria['ongoing'] == 'true':
                 if completed_date=='Anticipated':
                     score+=1
-            else:
-                if completed_date=='Actual':
-                    score+=1
+                    criteriaMatch['ongoing']=True
         except KeyError:
             print("No completion date Section")
             
@@ -214,12 +255,15 @@ def set_up_score(trial_data, criteria): #(fullStudies, age, condition, inclusion
                     if not criteria['includeDrug'] == '':
                         if criteria['includeDrug'].lower() in drug.lower(): # Make drug string to lower case 
                             score+=criteria['includeDrugWeight'] # includeDrug
+                            criteriaMatch['includeDrug']=True
                     if not criteria['excludeDrug'] == '':
                         if criteria['excludeDrug'].lower() in drug.lower():
                             score-=criteria['excludeDrugWeight'] # excludeDrug
+                            criteriaMatch['excludeDrug']=True
         except KeyError:
             print("No includeDrug and excludeDrug Section")
             
-        study.update({'score':score})
+        study.update({'score':score, 'criteriaMatch':json.dumps(criteriaMatch)})
+        print criteriaMatch
 
 app.run(debug=True, host='0.0.0.0')
