@@ -322,7 +322,7 @@ class TableDisplay extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>Score</TableCell>
-              <TableCell align="right">Trial</TableCell>
+              <TableCell>Trial</TableCell>
               <TableCell align="right">Age</TableCell>
               <TableCell align="right">Condition</TableCell>
               <TableCell align="right">Inclusion Criteria</TableCell>
@@ -338,8 +338,8 @@ class TableDisplay extends React.Component {
                 <TableCell component="th" scope="row">
                   {row.score}
                 </TableCell>
-                <TableCell align="right">{row.name}</TableCell>
-                <TableCell align="right">{!row.age ? "No match" : "Match"}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell align="right" width="200px">{!row.age ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{!row.condition ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
