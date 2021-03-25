@@ -282,11 +282,12 @@ class TableDisplay extends React.Component {
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
     let age = criteriaMatch.age;
     let condition = criteriaMatch.condition;
+    let inclusion = criteriaMatch.inclusion;
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
     console.log(trial);
-    return {score, age, name};
+    return {score, age, name, condition, inclusion};
   }
 
   componentDidUpdate(prevProps){
@@ -336,7 +337,7 @@ class TableDisplay extends React.Component {
                 <TableCell align="right">{row.name}</TableCell>
                 <TableCell align="right">{row.age === 'false' ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{row.condition === 'false' ? "No match" : "Match"}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell align="right">{row.inclusion === 'false' ? "No match" : "Match"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
