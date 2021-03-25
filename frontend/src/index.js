@@ -323,7 +323,7 @@ class TableDisplay extends React.Component {
                 <TableCell className="MyTableCell" align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
                 <TableCell className="MyTableCell" align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
                 <TableCell className="MyTableCell" align="right">{!row.completed ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTablecell" align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
+                <TableCell className="MyTableCell" align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
                 <TableCell className="MyTableCell" align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
               </TableRow>
             ))}
