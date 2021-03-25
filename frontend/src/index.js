@@ -73,23 +73,9 @@ class Display extends React.Component{
   //When we change the dropdown state in toggleInCriteria or toggleOutCriteria, we need to re-create the display wrappers
   //to reflect the change
   updateCriteria(){
-    let i;
-    const wrappers = [];
-    for (i = 0; i < this.state.numDisplays; i++) { 
-      wrappers.push(<TrialWrapper key={"key"+ i} numDisplays={this.state.numDisplays} 
-        displayInCriteria={this.state.displayInCriteria}
-        displayOutCriteria={this.state.displayOutCriteria}
-        displayOutMeasures={this.state.displayOutMeasures}
-        displayResults={this.state.displayResults}
-        toggleInCriteria={()=>this.toggleInCriteria()}
-        toggleOutCriteria={() => this.toggleOutCriteria()}
-        toggleOutMeasures={() => this.toggleOutMeasures()}
-        toggleResults={() => this.toggleResults()}
-        trialData={JSON.stringify(this.state.trials[i])}
-        />);
-    }
+    this.setState({curTrial: curTrial});
+ 
     //Calling setState triggers the render function to run and essentially updates the component
-    this.setState({wrappers: wrappers, ready: true}); 
   }
 
   //Toggles the criteria dropdowns and the calls updateCriteria
