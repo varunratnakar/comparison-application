@@ -72,7 +72,7 @@ def api_sortTrialsByCriteria():
     }
     criteria_json = json.dumps(criteria)
     
-    # criteria = parse_request(request)
+    criteria = parse_request(request)
     
     # get trial data based on keyword and numResults from front end request
     trial_data = get_trials(keyword, num_results)
