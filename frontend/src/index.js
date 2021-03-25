@@ -285,11 +285,13 @@ class TableDisplay extends React.Component {
     let inclusion = criteriaMatch.inclusion;
     let exclusion = criteriaMatch.exclusion;
     let completed = !criteriaMatch.ongoing;
+    let includeDrug = criteriaMatch.includeDrug;
+    let excludeDrug = criteriaMatch.excludeDrug;
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
     console.log(trial);
-    return {score, age, name, condition, inclusion, exclusion, completed};
+    return {score, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
   }
 
   componentDidUpdate(prevProps){
