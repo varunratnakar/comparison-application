@@ -280,8 +280,9 @@ class TableDisplay extends React.Component {
     let score = trial.score;
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
     let age = criteriaMatch.age;
+    let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
     console.log(trial);
-    return {score, age};
+    return {score, age, name};
   }
 
   componentDidUpdate(prevProps){
@@ -328,7 +329,7 @@ class TableDisplay extends React.Component {
                   {row.score}
                 </TableCell>
                 <TableCell align="right">{row.age}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
+                <TableCell align="right">{row.name}</TableCell>
                 <TableCell align="right">{row.carbs}</TableCell>
                 <TableCell align="right">{row.protein}</TableCell>
               </TableRow>
