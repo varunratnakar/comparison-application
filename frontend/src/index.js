@@ -21,29 +21,7 @@ class Display extends React.Component{
     const wrappers = []; //array of trial display wrappers
     let i;
     this.executeSearch=this.executeSearch.bind(this);
-      
-    /*for (i = 0; i < numDisplays; i++) { 
-      wrappers.push(<TrialWrapper key={"key"+ i} numDisplays={numDisplays}
-        displayInCriteria={false} //Initial values for criteria dropdown
-        displayOutCriteria={false}
-        displayOutMeasures={false}
-        displayResults={false}
-        toggleInCriteria={()=>this.toggleInCriteria()} //Sending dropdown toggle functions down to child components
-        toggleOutCriteria={() => this.toggleOutCriteria()} 
-        toggleOutMeasures={() => this.toggleOutMeasures()}
-        toggleResults={() => this.toggleResults()}
-        trialChoice={i}
-        dateChoice={i}
-        typeChoice={i}
-        conditionChoice={i}
-        treatmentsChoice={i}
-        inclusionChoice={i}
-        linkChoice={i}
-        outcomeChoice={i}
-        resultChoice={i} 
-        trialData={null}
-        />);
-    }*/
+    this.displayTrial = this.displayTrial.bind(this);
     //Since we want to use these values elsewhere, add them to the state since state is persistent (each componenet instance has own state).
     this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, ready: false, table: true}; 
   }
@@ -70,6 +48,14 @@ class Display extends React.Component{
 
   }
 
+  displayTrial(trialRank){
+    let i = 0;
+    for(i; i < this.state.numDisplays; i++){
+      if(this.state.trials[i].rank === trialRank){
+        console.log("match!");
+      }
+    }
+  }
 
   //When we change the dropdown state in toggleInCriteria or toggleOutCriteria, we need to re-create the display wrappers
   //to reflect the change
@@ -118,7 +104,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
-            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials}/> : this.state.wrappers) : null}
+            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.wrappers) : null}
           </div>
         </div>
         
@@ -270,16 +256,16 @@ class TableDisplay extends React.Component {
   constructor(props){
     super(props);
     this.createData = this.createData.bind(this);
+    this.displayTrial = this.props.displayTrial.bind(this);
     this.state = {trials: this.props.data};
     console.log(this.props.data);
 
   }
 
-
   createData(trial) {
     //trial = JSON.parse(trial);
     let score = trial.score;
-
+    let rank = trial.rank;
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
     let age = criteriaMatch.age;
     let condition = criteriaMatch.condition;
@@ -294,6 +280,8 @@ class TableDisplay extends React.Component {
     console.log(trial);
     return {score, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
   }
+
+
 
   componentDidUpdate(prevProps){
     if(this.props.data != prevProps.data){
@@ -335,7 +323,7 @@ class TableDisplay extends React.Component {
           </TableHead>
           <TableBody>
             {trials.map((row) => (
-              <TableRow key={row.name}>
+              <TableRow key={row.name} onClick={this.displayTrial(row.rank)}>
                 <TableCell component="th" scope="row">
                   {row.score}
                 </TableCell>
