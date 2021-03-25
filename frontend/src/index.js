@@ -53,6 +53,7 @@ class Display extends React.Component{
     for(i; i < this.state.numDisplays; i++){
       if(this.state.trials[i].rank === trialRank){
         console.log("match!");
+        break;
       }
     }
   }
