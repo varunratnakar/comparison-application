@@ -42,13 +42,7 @@ body {
   white-space: nowrap;
 }
 
-.TrialCollection{
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: space-around;
 
-}
 
 .TextInput{
   margin: 5px;
