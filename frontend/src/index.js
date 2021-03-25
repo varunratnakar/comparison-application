@@ -296,7 +296,7 @@ class TableDisplay extends React.Component {
     console.log(trials);
 
     return (
-      <TableContainer component={Paper}>
+      <TableContainer overflow="scroll" component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
