@@ -284,11 +284,12 @@ class TableDisplay extends React.Component {
     let condition = criteriaMatch.condition;
     let inclusion = criteriaMatch.inclusion;
     let exclusion = criteriaMatch.exclusion;
+    let completed = !criteriaMatch.ongoing;
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
     console.log(trial);
-    return {score, age, name, condition, inclusion, exclusion};
+    return {score, age, name, condition, inclusion, exclusion, completed};
   }
 
   componentDidUpdate(prevProps){
@@ -336,10 +337,11 @@ class TableDisplay extends React.Component {
                   {row.score}
                 </TableCell>
                 <TableCell align="right">{row.name}</TableCell>
-                <TableCell align="right">{row.age === false ? "No match" : "Match"}</TableCell>
-                <TableCell align="right">{row.condition === 'false' ? "No match" : "Match"}</TableCell>
-                <TableCell align="right">{row.inclusion === 'false' ? "No match" : "Match"}</TableCell>
-                <TableCell align="right">{row.exclusion === 'false' ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.age ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.condition ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.completed ? "No match" : "Match"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
