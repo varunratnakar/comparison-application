@@ -296,7 +296,7 @@ class TableDisplay extends React.Component {
     console.log(trials);
 
     return (
-      <TableContainer overflow="scroll" component={Paper}>
+      <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -311,7 +311,7 @@ class TableDisplay extends React.Component {
               <TableCell align="right">Exclude Drug</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody overflow:"auto">
             {trials.map((row) => (
               <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
                 <TableCell component="th" scope="row">
