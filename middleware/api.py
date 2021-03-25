@@ -168,7 +168,6 @@ def set_up_score(trial_data, criteria):
             
             if not criteria['age'] == '':
                 int_age=int(criteria['age'])
-                print int_age, int_min_age, int_max_age
                 if min_age != '' and max_age != '':
                     if int_age>=int_min_age and int_age<=int_max_age:
                         score+=criteria['ageWeight']
@@ -264,6 +263,5 @@ def set_up_score(trial_data, criteria):
             print("No includeDrug and excludeDrug Section")
             
         study.update({'score':score, 'criteriaMatch':json.dumps(criteriaMatch)})
-        print criteriaMatch
 
 app.run(debug=True, host='0.0.0.0')
