@@ -283,11 +283,12 @@ class TableDisplay extends React.Component {
     let age = criteriaMatch.age;
     let condition = criteriaMatch.condition;
     let inclusion = criteriaMatch.inclusion;
+    let exclusion = criteriaMatch.exclusion;
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
     console.log(trial);
-    return {score, age, name, condition, inclusion};
+    return {score, age, name, condition, inclusion, exclusion};
   }
 
   componentDidUpdate(prevProps){
@@ -335,9 +336,10 @@ class TableDisplay extends React.Component {
                   {row.score}
                 </TableCell>
                 <TableCell align="right">{row.name}</TableCell>
-                <TableCell align="right">{row.age === 'false' ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{row.age === false ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{row.condition === 'false' ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{row.inclusion === 'false' ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{row.exclusion === 'false' ? "No match" : "Match"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
