@@ -311,7 +311,7 @@ class TableDisplay extends React.Component {
               <TableCell align="right">Exclude Drug</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody overflow:"auto">
+          <TableBody overflow="auto">
             {trials.map((row) => (
               <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
                 <TableCell component="th" scope="row">
