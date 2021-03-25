@@ -27,11 +27,13 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  max-height: 2000px;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 .PatientDisplay{
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
 }
