@@ -92,7 +92,7 @@ class Display extends React.Component{
     return(
       <div className="Background">
         <div className = 'PatientAndTrials'>
-          <PatientDisplay executeSearch={this.executeSearch}/>
+          <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
             {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
