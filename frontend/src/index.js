@@ -277,9 +277,10 @@ class TableDisplay extends React.Component {
 
   createData(trial) {
     //trial = JSON.parse(trial);
-    let rank = trial.Rank;
+    let score = trial.score;
+    let age = trial.criteriaMatch.age;
     console.log(trial);
-    return {rank, rank, rank, rank, rank, rank, rank };
+    return {score, age};
   }
 
   componentDidUpdate(prevProps){
@@ -309,7 +310,7 @@ class TableDisplay extends React.Component {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>CT Rank</TableCell>
+              <TableCell>Score</TableCell>
               <TableCell align="right">Age</TableCell>
               <TableCell align="right">Condition</TableCell>
               <TableCell align="right">Inclusion Criteria</TableCell>
