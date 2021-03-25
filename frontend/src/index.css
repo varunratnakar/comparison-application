@@ -30,6 +30,11 @@ body {
   max-height: 2000px;
 }
 
+.PatientDisplay{
+  position: fixed;
+  top: 0;
+}
+
 .TrialCollection{
   display: flex;
   flex-wrap: wrap;
