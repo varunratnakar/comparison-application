@@ -72,7 +72,7 @@ def api_sortTrialsByCriteria():
     }
     criteria_json = json.dumps(criteria)
     
-    criteria = parse_request(request)
+    #criteria = parse_request(request)
     
     # get trial data based on keyword and numResults from front end request
     trial_data = get_trials(keyword, num_results)
@@ -90,7 +90,7 @@ def api_sortTrialsByCriteria():
         data=trial_data
     )
     
-    response.headers.add("Access-Control-Allow-Origin", "*")
+    #response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
 def set_criteria_match():
