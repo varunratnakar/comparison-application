@@ -156,7 +156,6 @@ def parse_request(request):
 
 # Assign score to all trials
 def set_up_score(trial_data, criteria):
-    print criteria
     for study in trial_data:
         try:
             protocol_section=study['Study']['ProtocolSection']
