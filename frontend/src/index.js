@@ -342,6 +342,8 @@ class TableDisplay extends React.Component {
                 <TableCell align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
                 <TableCell align="right">{!row.completed ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
+                <TableCell align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
