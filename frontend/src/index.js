@@ -94,7 +94,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
-            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
+            {this.state.ready ? (this.state.table ? <TableDisplay overflow="auto" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
         </div>
         
@@ -311,7 +311,7 @@ class TableDisplay extends React.Component {
               <TableCell align="right">Exclude Drug</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody overflow="auto">
+          <TableBody>
             {trials.map((row) => (
               <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
                 <TableCell component="th" scope="row">
