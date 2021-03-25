@@ -52,10 +52,21 @@ class Display extends React.Component{
     let i = 0;
     for(i; i < this.state.numDisplays; i++){
       if(this.state.trials[i].rank === trialRank){
-        console.log("match!");
+        let curTrial = <TrialWrapper key={"key"+ i} numDisplays={1} 
+        displayInCriteria={this.state.displayInCriteria}
+        displayOutCriteria={this.state.displayOutCriteria}
+        displayOutMeasures={this.state.displayOutMeasures}
+        displayResults={this.state.displayResults}
+        toggleInCriteria={()=>this.toggleInCriteria()}
+        toggleOutCriteria={() => this.toggleOutCriteria()}
+        toggleOutMeasures={() => this.toggleOutMeasures()}
+        toggleResults={() => this.toggleResults()}
+        trialData={JSON.stringify(this.state.trials[i])}
+        />;
         break;
       }
     }
+    this.setState({curTrial: curTrial});
   }
 
   //When we change the dropdown state in toggleInCriteria or toggleOutCriteria, we need to re-create the display wrappers
@@ -105,7 +116,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay executeSearch={this.executeSearch}/>
           <div className="TrialCollection">
-            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.wrappers) : null}
+            {this.state.ready ? (this.state.table ? <TableDisplay data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
         </div>
         
