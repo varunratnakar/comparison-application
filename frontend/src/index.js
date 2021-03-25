@@ -217,7 +217,7 @@ class PatientDisplay extends React.Component {
             placeholder="Exlusion Criteria"
             />
             <input
-            name="exlusionWeight"
+            name="exclusionWeight"
             style={WeightStyling}
             placeholder="0-10"
             />
@@ -245,6 +245,7 @@ class PatientDisplay extends React.Component {
           </div>
           <div>
             <input
+            name="excludeDrug"
             className="TextInput"
             placeholder="Exclude Drug"
             style={smallerBar}
