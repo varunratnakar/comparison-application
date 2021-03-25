@@ -55,6 +55,7 @@ def api_sortTrialsByCriteria():
     num_results = request.form['numResult']
     
     ### Assign a default value For testing ###
+    '''
     criteria = {
         'age':'31',
         'ageWeight':2,
@@ -64,15 +65,15 @@ def api_sortTrialsByCriteria():
         'inclusionWeight':3,
         'exclusion':'',
         'exclusionWeight':2,
-        'ongoing':'true',
+        'ongoing':True,
         'includeDrug':'',
         'includeDrugWeight':0,
         'excludeDrug':'',
         'excludeDrugWeight':0
     }
     criteria_json = json.dumps(criteria)
-    
-    #criteria = parse_request(request)
+    '''
+    criteria = parse_request(request)
     
     # get trial data based on keyword and numResults from front end request
     trial_data = get_trials(keyword, num_results)
@@ -99,7 +100,7 @@ def set_criteria_match():
         'condition':False,
         'inclusion':False,
         'exclusion':False,
-        'ongoing':False,
+        'ongoing':True,
         'includeDrug':False,
         'excludeDrug':False
     }
@@ -115,25 +116,47 @@ def sort_trials(trial_data):
     trial_data.sort(key=score, reverse=True)
     
 def parse_request(request):
+    print request
     result = {
         'age':request.form['age'],
-        'ageWeight':int(request.form['ageWeight']),
+        'ageWeight':0,
         'condition':request.form['condition'],
-        'conditionWeight':int(request.form['conditionWeight']),
+        'conditionWeight':0,
         'inclusion':request.form['inclusion'],
-        'inclusionWeight':int(request.form['inclusionWeight']),
+        'inclusionWeight':0,
         'exclusion':request.form['exclusion'],
-        'exclusionWeight':int(request.form['exclusionWeight']),
-        'ongoing':request.form['ongoing'],
+        'exclusionWeight':0,
+        'ongoing':True,
         'includeDrug':request.form['includeDrug'],
-        'includeDrugWeight':int(request.form['includeDrugWeight']),
-        'excludeDrug':request.form['excludeDrug'],
-        'excludeDrugWeight':int(request.form['excludeDrugWeight'])
+        'includeDrugWeight':0,
+        'excludeDrug':'',#request.form['excludeDrug'],
+        'excludeDrugWeight':0
     }
-    return json.dumps(result)
+    if request.form['ageWeight'] != '':
+        result['ageWeight']=int(request.form['ageWeight'])
+    if request.form['conditionWeight'] != '':
+        result['conditionWeight']=int(request.form['conditionWeight'])
+    if request.form['inclusionWeight'] != '':
+        result['inclusionWeight']=int(request.form['inclusionWeight'])
+    
+    # if request.form['exclusionWeight'] != '':
+    #    result['exclusionWeight']=int(request.form['exclusionWeight'])
+    try:
+        if request.form['ongoing'] == 'on':
+            result['ongoing']=False
+    except KeyError:
+        print("No ongoing")
+        
+    if request.form['includeDrugWeight'] != '':
+        result['includeDrugWeight']=int(request.form['includeDrugWeight'])
+    if request.form['excludeDrugWeight'] != '':
+        result['excludeDrugWeight']=int(request.form['excludeDrugWeight'])
+    
+    return result
 
 # Assign score to all trials
 def set_up_score(trial_data, criteria):
+    print criteria
     for study in trial_data:
         try:
             protocol_section=study['Study']['ProtocolSection']
@@ -238,10 +261,15 @@ def set_up_score(trial_data, criteria):
         try:
             completed_date=protocol_section['StatusModule']['PrimaryCompletionDateStruct']['PrimaryCompletionDateType']
             # Check ongoing
-            if criteria['ongoing'] == 'true':
+            if criteria['ongoing']:
                 if completed_date=='Anticipated':
                     score+=1
-                    criteriaMatch['ongoing']=True
+                    criteriaMatch['ongoing']=False
+            else:
+                if completed_date=='Actual':
+                    score+=1
+                    criteriaMatch['ongoing']=False
+                
         except KeyError:
             print("No completion date Section")
             
@@ -251,14 +279,16 @@ def set_up_score(trial_data, criteria):
             for arm in arm_group:
                 drug_list=arm['ArmGroupInterventionList']['ArmGroupInterventionName']
                 for drug in drug_list:
-                    if not criteria['includeDrug'] == '':
-                        if criteria['includeDrug'].lower() in drug.lower(): # Make drug string to lower case 
-                            score+=criteria['includeDrugWeight'] # includeDrug
-                            criteriaMatch['includeDrug']=True
-                    if not criteria['excludeDrug'] == '':
-                        if criteria['excludeDrug'].lower() in drug.lower():
-                            score-=criteria['excludeDrugWeight'] # excludeDrug
-                            criteriaMatch['excludeDrug']=True
+                    if not criteriaMatch['includeDrug']:
+                        if not criteria['includeDrug'] == '':
+                            if criteria['includeDrug'].lower() in drug.lower(): # Make drug string to lower case 
+                                score+=criteria['includeDrugWeight'] # includeDrug
+                                criteriaMatch['includeDrug']=True
+                    if not criteriaMatch['excludeDrug']:
+                        if not criteria['excludeDrug'] == '':
+                            if criteria['excludeDrug'].lower() in drug.lower():
+                                score+=criteria['excludeDrugWeight'] # excludeDrug
+                                criteriaMatch['excludeDrug']=True
         except KeyError:
             print("No includeDrug and excludeDrug Section")
             
