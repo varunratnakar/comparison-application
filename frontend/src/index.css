@@ -42,7 +42,9 @@ body {
   white-space: nowrap;
 }
 
-
+.TrialCollection{
+  overflow: auto;
+}
 
 .TextInput{
   margin: 5px;
