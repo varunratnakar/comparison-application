@@ -43,7 +43,7 @@ body {
 
 .TableDisplay{
   overflow: auto;
-  height: 100%;
+  height: 500px;
 }
 
 .MyTableContainer{
