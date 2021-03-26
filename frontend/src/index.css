@@ -38,6 +38,9 @@ body {
   left: 0;
 }
 
+.MyTableBody{
+  overflow: auto;
+}
 .MyTableCell{
   white-space: nowrap;
 }
