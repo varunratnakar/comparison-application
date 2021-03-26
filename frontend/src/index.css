@@ -41,6 +41,11 @@ body {
   width: 100%;
 }
 
+.TableDisplay{
+  overflow: auto;
+  height: 100%;
+}
+
 .MyTableContainer{
   max-height: 500;
 }
