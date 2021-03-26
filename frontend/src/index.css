@@ -54,6 +54,7 @@ body {
 
 .TrialCollection{
   overflow: auto;
+  height: 100%;
 }
 
 .TextInput{
