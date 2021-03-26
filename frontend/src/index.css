@@ -42,7 +42,7 @@ body {
 }
 
 .TableDisplay{
-  overflow: auto;
+  overflow-y: scroll;
   height: 500px;
 }
 
@@ -51,14 +51,14 @@ body {
 }
 
 .MyTableBody{
-  overflow: auto;
+  overflow-y: scroll;
 }
 .MyTableCell{
   white-space: nowrap;
 }
 
 .TrialCollection{
-  overflow: auto;
+  overflow-y: scroll;
   height: 100%;
 }
 
