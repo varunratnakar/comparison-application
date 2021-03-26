@@ -298,7 +298,7 @@ class TableDisplay extends React.Component {
     return (
       <Paper className="MyRoot">
         <TableContainer className="MyTableContainer">
-          <Table stickyheader className={classes.table} aria-label="sticky table">
+          <Table stickyheader aria-label="sticky table">
             <TableHead>
               <TableRow>
                 <TableCell>Score</TableCell>
