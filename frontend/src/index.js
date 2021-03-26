@@ -296,40 +296,42 @@ class TableDisplay extends React.Component {
     console.log(trials);
 
     return (
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Score</TableCell>
-              <TableCell>Trial</TableCell>
-              <TableCell align="right">Age</TableCell>
-              <TableCell align="right">Condition</TableCell>
-              <TableCell align="right">Inclusion Criteria</TableCell>
-              <TableCell align="right">Exclusion Criteria</TableCell>
-              <TableCell align="right">Trial Completed</TableCell>
-              <TableCell align="right">Include Drug</TableCell>
-              <TableCell align="right">Exclude Drug</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody className="MyTableBody">
-            {trials.map((row) => (
-              <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
-                <TableCell component="th" scope="row">
-                  {row.score}
-                </TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.age ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.condition ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.completed ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
-                <TableCell className="MyTableCell" align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
+      <Paper className="MyRoot">
+        <TableContainer className="MyTableContainer">
+          <Table stickyheader className={classes.table} aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Score</TableCell>
+                <TableCell>Trial</TableCell>
+                <TableCell align="right">Age</TableCell>
+                <TableCell align="right">Condition</TableCell>
+                <TableCell align="right">Inclusion Criteria</TableCell>
+                <TableCell align="right">Exclusion Criteria</TableCell>
+                <TableCell align="right">Trial Completed</TableCell>
+                <TableCell align="right">Include Drug</TableCell>
+                <TableCell align="right">Exclude Drug</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody className="MyTableBody">
+              {trials.map((row) => (
+                <TableRow key={row.name} onClick={() => this.displayTrial(row.rank)}>
+                  <TableCell component="th" scope="row">
+                    {row.score}
+                  </TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.age ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.condition ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.completed ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     );
   }
 
