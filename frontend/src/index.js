@@ -94,7 +94,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch}/>
           <div className="TrialCollection" overflow="auto">
-            {this.state.ready ? (this.state.table ? <TableDisplay overflow="auto" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
+            {this.state.ready ? (this.state.table ? <TableDisplay className="TableDisplay" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
         </div>
         
