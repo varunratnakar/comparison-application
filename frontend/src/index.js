@@ -124,9 +124,9 @@ class PatientDisplay extends React.Component {
   */
 
   render(){
-    const BarStyling = {width:"100%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
-    const smallerBar = {width:"80%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
-    const WeightStyling = {width:"15%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
+    const BarStyling = {width:"50%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
+    const smallerBar = {width:"40%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
+    const WeightStyling = {width:"5%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     return(
       <div className='PatientDisplay'>
         <form onSubmit={this.handleSubmit}>
