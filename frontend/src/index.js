@@ -257,7 +257,6 @@ class TableDisplay extends React.Component {
     this.createData = this.createData.bind(this);
     this.displayTrial = this.props.displayTrial.bind(this);
     this.state = {trials: this.props.data};
-    console.log(this.props.data);
 
   }
 
@@ -265,6 +264,7 @@ class TableDisplay extends React.Component {
     //trial = JSON.parse(trial);
     let score = trial.score;
     let rank = trial.rank;
+    console.log(rank);
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
     let age = criteriaMatch.age;
     let condition = criteriaMatch.condition;
@@ -276,7 +276,6 @@ class TableDisplay extends React.Component {
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
-    console.log(trial);
     return {score, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
   }
 
@@ -302,7 +301,6 @@ class TableDisplay extends React.Component {
     for(i = 0; i < this.state.trials.length; i++){
       trials.push(this.createData(this.state.trials[i]));
     }
-    console.log(trials);
 
     return (
       <Paper className="MyRoot">
