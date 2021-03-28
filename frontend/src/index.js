@@ -24,7 +24,7 @@ class Display extends React.Component{
     this.displayTrial = this.displayTrial.bind(this);
     this.showTable = this.showTable.bind(this);
     //Since we want to use these values elsewhere, add them to the state since state is persistent (each componenet instance has own state).
-    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, ready: false, table: true}; 
+    this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, ready: false, table: true, tableButton: false}; 
   }
 
   executeSearch(formData){
@@ -49,7 +49,7 @@ class Display extends React.Component{
   }
 
   showTable(){
-    this.setState({table: true});
+    this.setState({table: true, tableButton: false});
   }
 
   displayTrial(trialRank){
@@ -58,7 +58,6 @@ class Display extends React.Component{
     console.log(trialRank);
     for(i; i < this.state.numDisplays; i++){
       if(this.state.trials[i].Rank === trialRank){
-        console.log("found");
         curTrial = <TrialWrapper key={"key"+ i} numDisplays={1} 
         displayInCriteria={this.state.displayInCriteria}
         displayOutCriteria={this.state.displayOutCriteria}
@@ -73,7 +72,7 @@ class Display extends React.Component{
         break;
       }
     }
-    this.setState({curTrial: curTrial, displayRank: trialRank, table: false});
+    this.setState({curTrial: curTrial, displayRank: trialRank, table: false, tableButton: true});
   }
 
   //Toggles the criteria dropdowns and the calls updateCriteria
@@ -99,7 +98,7 @@ class Display extends React.Component{
     return(
       <div className="Background">
         <div className = 'PatientAndTrials'>
-          <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch} showTable={this.showTable}/>
+          <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch} showTable={this.showTable} tableButton={this.state.tableButton}/>
           <div className="TrialCollection">
             {this.state.ready ? (this.state.table ? <TableDisplay className="TableDisplay" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
@@ -114,7 +113,7 @@ class Display extends React.Component{
 class PatientDisplay extends React.Component {
   constructor(props){
     super(props);
-    this.state = {executeSearch: this.props.executeSearch, tableButton: false};
+    this.state = {executeSearch: this.props.executeSearch, tableButton: this.props.tableButton};
     this.handleSubmit = this.handleSubmit.bind(this);
     this.showTable = this.props.showTable.bind(this);
 
