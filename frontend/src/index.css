@@ -35,16 +35,16 @@ body {
   position: relative;
   top: 0;
   left: 0;
-  margin: 2px;
   height: 100%;
   width: 100%;
 }
 
 .PatientDisplay{
-  position: relative;
+  position: fixed;
   top: 0;
   left: 0;
   width: 10vw;
+  margin: 2px;
 }
 .MyRoot{
   
