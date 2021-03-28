@@ -276,7 +276,7 @@ class TableDisplay extends React.Component {
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
-    return {score, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
+    return {score, rank, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
   }
 
 
