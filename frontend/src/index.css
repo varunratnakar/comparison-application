@@ -70,6 +70,9 @@ body {
   overflow-y: scroll;
   height: 100%;
   width: 78vw;
+  position: fixed;
+  top: 2px;
+  left: 10px + 20vw;
 }
 
 .TextInput{
