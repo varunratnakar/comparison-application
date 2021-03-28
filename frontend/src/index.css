@@ -69,10 +69,10 @@ body {
 .TrialCollection{
   overflow-y: scroll;
   height: 100%;
-  width: 78vw;
+  width: 76vw;
   position: fixed;
   top: 2px;
-  left: 25vw;
+  left: 22vw;
 }
 
 .TextInput{
