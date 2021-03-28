@@ -55,6 +55,7 @@ class Display extends React.Component{
   displayTrial(trialRank){
     let i = 0;
     let curTrial;
+    console.log(trialRank);
     for(i; i < this.state.numDisplays; i++){
       if(this.state.trials[i].rank === trialRank){
         curTrial = <TrialWrapper key={"key"+ i} numDisplays={1} 
