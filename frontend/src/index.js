@@ -343,7 +343,6 @@ class TrialWrapper extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      width: ((window.innerWidth - 200) / props.numDisplays) - 50,
       displayInCriteria: this.props.displayInCriteria,
       displayOutCriteria: this.props.displayOutCriteria,
       displayOutMeasures: this.props.displayOutMeasures,
@@ -382,7 +381,7 @@ class TrialWrapper extends React.Component {
   //For criteria, we pass down the current state of dropdowns and the toggle function that we got from the parent
   render() {
     return (
-      <div className="TrialWrapper" style={{width: this.state.width}}>
+      <div className="TrialWrapper">
         <TrialName 
           data={this.state.trialData.Study.ProtocolSection.IdentificationModule.BriefTitle? 
             JSON.stringify(this.state.trialData.Study.ProtocolSection.IdentificationModule.BriefTitle) : null} />
