@@ -47,7 +47,7 @@ body {
   margin: 2px;
 }
 .MyRoot{
-  
+  width: 100%;
 }
 
 .TableDisplay{
@@ -69,6 +69,7 @@ body {
 .TrialCollection{
   overflow-y: scroll;
   height: 100%;
+  width: 78vw;
 }
 
 .TextInput{
