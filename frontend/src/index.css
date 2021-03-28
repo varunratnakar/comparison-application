@@ -21,7 +21,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: auto;
+  width: 100vw;
   height: 100vh;
   position: fixed;
   top: 0;
@@ -43,11 +43,11 @@ body {
 .PatientDisplay{
   position: relative;
   top: 0;
-  left: 5vh;
-  width: 30vh;
+  left: 0;
+  width: 10vw;
 }
 .MyRoot{
-  width: 65vh%;
+  
 }
 
 .TableDisplay{
