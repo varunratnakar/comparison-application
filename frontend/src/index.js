@@ -122,8 +122,13 @@ class PatientDisplay extends React.Component {
   handleSubmit(event){
     event.preventDefault();
     let formData = new FormData(event.target);
-    this.setState({tableButton: true});
     this.state.executeSearch(formData);
+  }
+
+  componentDidUpdate(prevProps){
+    if(this.props.tableButton != prevProps.tableButton){
+      this.setState({tableButton: this.props.tableButton});
+    }
   }
 
   /*REQUEST FORMAT: key/value pairs with HTML form
