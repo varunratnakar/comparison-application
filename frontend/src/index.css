@@ -30,6 +30,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
+  height: 100vh;
 }
 
 .PatientDisplay{
@@ -59,7 +60,7 @@ body {
 
 .TrialCollection{
   overflow-y: scroll;
-  height: 500px;
+  height: 100%;
 }
 
 .TextInput{
