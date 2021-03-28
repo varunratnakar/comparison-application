@@ -22,6 +22,7 @@ class Display extends React.Component{
     let i;
     this.executeSearch=this.executeSearch.bind(this);
     this.displayTrial = this.displayTrial.bind(this);
+    this.showTable = this.showTable.bind(this);
     //Since we want to use these values elsewhere, add them to the state since state is persistent (each componenet instance has own state).
     this.state = {numDisplays: numDisplays, displayInCriteria: false, displayOutCriteria: false, displayOutMeasures: false, displayResults: false, ready: false, table: true}; 
   }
@@ -45,6 +46,10 @@ class Display extends React.Component{
       (error) => {alert(error)});
     return false;
 
+  }
+
+  showTable(){
+    this.setState({table: true});
   }
 
   displayTrial(trialRank){
@@ -92,7 +97,7 @@ class Display extends React.Component{
     return(
       <div className="Background">
         <div className = 'PatientAndTrials'>
-          <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch}/>
+          <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch} showTable={this.showTable}/>
           <div className="TrialCollection">
             {this.state.ready ? (this.state.table ? <TableDisplay className="TableDisplay" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
@@ -107,14 +112,16 @@ class Display extends React.Component{
 class PatientDisplay extends React.Component {
   constructor(props){
     super(props);
-    this.state = {executeSearch: this.props.executeSearch};
+    this.state = {executeSearch: this.props.executeSearch, tableButton: false};
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.showTable = this.props.showTable.bind(this);
 
   }
 
   handleSubmit(event){
     event.preventDefault();
     let formData = new FormData(event.target);
+    this.setState({tableButton: true});
     this.state.executeSearch(formData);
   }
 
@@ -236,6 +243,7 @@ class PatientDisplay extends React.Component {
           <br/>
           <input type='submit' value="Search"/>
         </form>
+        {this.state.tableButton ? <button type="button" onClick={this.showTable}>Show table</button> : null}
       </div>
     );
   }
