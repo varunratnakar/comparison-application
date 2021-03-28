@@ -68,7 +68,7 @@ body {
 .TrialCollection{
   overflow-y: scroll;
   height: 100%;
-  width: 76vw;
+  width: 78vw;
   position: fixed;
   top: 2px;
   left: 20vw;
