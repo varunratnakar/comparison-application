@@ -41,7 +41,7 @@ class Display extends React.Component{
         for(let i = 0; i < result.data.length; i++){
           results.push(result.data[i]);
         }
-        this.setState({trials: results, numDisplays: result.data.length, ready: true});
+        this.setState({trials: results, numDisplays: result.data.length, ready: true, table: true});
       },
       (error) => {alert(error)});
     return false;
