@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_cors import CORS, cross_origin
 import requests
 import json
+from datetime import datetime
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -129,7 +130,7 @@ def parse_request(request):
         'ongoing':True,
         'includeDrug':request.form['includeDrug'],
         'includeDrugWeight':0,
-        'excludeDrug':'',#request.form['excludeDrug'],
+        'excludeDrug':request.form['excludeDrug'],
         'excludeDrugWeight':0
     }
     if request.form['ageWeight'] != '':
@@ -138,9 +139,8 @@ def parse_request(request):
         result['conditionWeight']=int(request.form['conditionWeight'])
     if request.form['inclusionWeight'] != '':
         result['inclusionWeight']=int(request.form['inclusionWeight'])
-    
-    # if request.form['exclusionWeight'] != '':
-    #    result['exclusionWeight']=int(request.form['exclusionWeight'])
+    if request.form['exclusionWeight'] != '':
+        result['exclusionWeight']=int(request.form['exclusionWeight'])
     try:
         if request.form['ongoing'] == 'on':
             result['ongoing']=False
@@ -258,6 +258,28 @@ def set_up_score(trial_data, criteria):
             print("No condition Section")
         
         try:
+            completed_date=protocol_section['StatusModule']['PrimaryCompletionDateStruct']['PrimaryCompletionDate']
+            # Check ongoing
+            date_list=completed_date.split(' ')
+            date_str=''
+            if len(date_list)==2:
+                date_str += date_list[1] + '-' + date_list[0] + '-01'
+            else:
+                date_str += date_list[2] + '-' + date_list[0] + '-' + date_list[1][:len(date_list[1])-1]
+                
+            dt = datetime.strptime(date_str, '%Y-%B-%d')
+            now_dt = datetime.now()
+            
+            if criteria['ongoing']:
+                if now_dt < dt:
+                    score+=1
+                    criteriaMatch['ongoing']=False
+            else:
+                if now_dt > dt:
+                    score+=1
+                    criteriaMatch['ongoing']=False
+            
+            '''
             completed_date=protocol_section['StatusModule']['PrimaryCompletionDateStruct']['PrimaryCompletionDateType']
             # Check ongoing
             if criteria['ongoing']:
@@ -268,7 +290,7 @@ def set_up_score(trial_data, criteria):
                 if completed_date=='Actual':
                     score+=1
                     criteriaMatch['ongoing']=False
-                
+            '''
         except KeyError:
             print("No completion date Section")
             
