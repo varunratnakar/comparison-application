@@ -63,6 +63,7 @@ body {
 }
 .MyTableCell{
   white-space: nowrap;
+  background-color: red;
 }
 
 .MyTableCellMatch{
