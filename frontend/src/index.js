@@ -331,13 +331,13 @@ class TableDisplay extends React.Component {
                     {row.score}
                   </TableCell>
                   <TableCell>{row.name}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.age ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.condition ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.completed ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.age ? "MyTableCell" : "MyTableCellMatch"}  align="right">{!row.age ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.condition ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.condition ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.inclusion ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.exclusion ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.completed ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.completed ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.includeDrug ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
+                  <TableCell className={!row.excludeDrug ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

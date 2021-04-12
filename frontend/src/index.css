@@ -65,6 +65,11 @@ body {
   white-space: nowrap;
 }
 
+.MyTableCellMatch{
+  white-space: nowrap;
+  background-color: green;
+}
+
 .TrialCollection{
   overflow-y: scroll;
   height: 100%;
