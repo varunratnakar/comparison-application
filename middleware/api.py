@@ -29,7 +29,7 @@ def get_trials(keyword, num_results):
         if i != last_ind:
             search += "+"
             
-    query_string = "https://clinicaltrials.gov/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=" + str(num_results) + "&fmt=json"
+    query_string = "https://clinicaltrials.gov/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=100&fmt=json"
     response = requests.get(query_string)
 
     full_studies_response = response.json()['FullStudiesResponse']
@@ -89,7 +89,7 @@ def api_sortTrialsByCriteria():
     response = jsonify(
         status=True,
         message="Successfully sorted trials",
-        data=trial_data
+        data=trial_data[:int(num_results)]
     )
     
     #response.headers.add("Access-Control-Allow-Origin", "*")
@@ -300,16 +300,17 @@ def set_up_score(trial_data, criteria):
             for arm in arm_group:
                 drug_list=arm['ArmGroupInterventionList']['ArmGroupInterventionName']
                 for drug in drug_list:
-                    if not criteriaMatch['includeDrug']:
-                        if not criteria['includeDrug'] == '':
-                            if criteria['includeDrug'].lower() in drug.lower(): # Make drug string to lower case 
-                                score+=criteria['includeDrugWeight'] # includeDrug
-                                criteriaMatch['includeDrug']=True
-                    if not criteriaMatch['excludeDrug']:
-                        if not criteria['excludeDrug'] == '':
-                            if criteria['excludeDrug'].lower() in drug.lower():
-                                score+=criteria['excludeDrugWeight'] # excludeDrug
-                                criteriaMatch['excludeDrug']=True
+                    if "Drug:" in drug: # Only check on Drug:
+                        if not criteriaMatch['includeDrug']:
+                            if not criteria['includeDrug'] == '':
+                                if criteria['includeDrug'].lower() in drug.lower(): # Make drug string to lower case 
+                                    score+=criteria['includeDrugWeight'] # includeDrug
+                                    criteriaMatch['includeDrug']=True
+                        if not criteriaMatch['excludeDrug']:
+                            if not criteria['excludeDrug'] == '':
+                                if criteria['excludeDrug'].lower() in drug.lower():
+                                    score+=criteria['excludeDrugWeight'] # excludeDrug
+                                    criteriaMatch['excludeDrug']=True
         except KeyError:
             print("No includeDrug and excludeDrug Section")
             
