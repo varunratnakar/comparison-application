@@ -30,18 +30,23 @@ class Display extends React.Component{
   executeSearch(formData){
 
     formData.set('keyword', formData.get('keyword'));
+    let weights = []
+    weights.push(formData.get('ageWeight'));
+    weights.push(formData.get('conditionWeight'));
+    weights.push(formData.get('inclusionWeight'));
+    weights.push(formData.get('exclusionWeight'));
+    weights.push(formData.get('includeDrugWeight'));
+    weights.push(formData.get('excludeDrugWeight'));
     let results = []
     fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'POST', body: formData})
       .then(response => response.json())
       .then((result) => {
-        console.log(result);
         // result.data contains all sorted trails
-        console.log(result.data);
         
         for(let i = 0; i < result.data.length; i++){
           results.push(result.data[i]);
         }
-        this.setState({trials: results, numDisplays: result.data.length, ready: true, table: true});
+        this.setState({trials: results, numDisplays: result.data.length, ready: true, table: true, weights: weights});
       },
       (error) => {alert(error)});
     return false;
@@ -100,7 +105,7 @@ class Display extends React.Component{
         <div className = 'PatientAndTrials'>
           <PatientDisplay className="PatienDisplay" executeSearch={this.executeSearch} showTable={this.showTable} tableButton={this.state.tableButton}/>
           <div className="TrialCollection">
-            {this.state.ready ? (this.state.table ? <TableDisplay className="TableDisplay" data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
+            {this.state.ready ? (this.state.table ? <TableDisplay className="TableDisplay" weights={this.state.weights} data={this.state.trials} displayTrial={this.displayTrial}/> : this.state.curTrial) : null}
           </div>
         </div>
         
@@ -138,8 +143,8 @@ class PatientDisplay extends React.Component {
 
   render(){
     const BarStyling = {width:"80%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
-    const smallerBar = {width:"70%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
-    const WeightStyling = {width:"5%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
+    const smallerBar = {width:"68%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
+    const WeightStyling = {width:"7%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     return(
       <div className='PatientDisplay'>
         <form onSubmit={this.handleSubmit}>
@@ -161,7 +166,32 @@ class PatientDisplay extends React.Component {
             />
           </div>
           <p className="Header1">Sorting Criteria</p>
-          <p className="Header2">Patient Information</p>
+          <div>
+            <input
+            name="type"
+            style={smallerBar}
+            className="TextInput"
+            placeholder="Study Type"
+            />
+            <input
+            name="typeWeight"
+            style={WeightStyling}
+            placeholder="1-9"
+            />
+          </div>
+          <div>
+            <input
+            name="allocation"
+            style={smallerBar}
+            className="TextInput"
+            placeholder="Study Allocation"
+            />
+            <input
+            name="allocationWeight"
+            style={WeightStyling}
+            placeholder="1-9"
+            />
+          </div>
           <div>
             <input
             name="age"
@@ -172,7 +202,20 @@ class PatientDisplay extends React.Component {
             <input
             name="ageWeight"
             style={WeightStyling}
-            placeholder="0-10"
+            placeholder="1-9"
+            />
+          </div>
+          <div>
+            <input
+            name="gender"
+            style={smallerBar}
+            className="TextInput"
+            placeholder="Gender"
+            />
+            <input
+            name="genderWeight"
+            style={WeightStyling}
+            placeholder="1-9"
             />
           </div>
           <div>
@@ -183,7 +226,7 @@ class PatientDisplay extends React.Component {
             />
             <input
             name="conditionWeight"
-            placeholder="0-10"
+            placeholder="1-9"
             style={WeightStyling}
             />
           </div>
@@ -196,7 +239,7 @@ class PatientDisplay extends React.Component {
             <input
             name="inclusionWeight"
             style={WeightStyling}
-            placeholder="0-10"
+            placeholder="1-9"
             />
           </div>
           <div>
@@ -208,18 +251,9 @@ class PatientDisplay extends React.Component {
             <input
             name="exclusionWeight"
             style={WeightStyling}
-            placeholder="0-10"
+            placeholder="1-9"
             />
           </div>
-          <p className="Header2">Trial Status</p>
-          <input
-          className="TextInput"
-          type="checkbox"
-          name="ongoing"
-          />
-          <label htmlFor="option1">Study Must be Completed</label>
-          <br/>
-          <p className="Header2">Drug Information</p>
           <div>
             <input
             name="includeDrug"
@@ -228,7 +262,7 @@ class PatientDisplay extends React.Component {
             />
             <input
             name="includeDrugWeight"
-            placeholder="0-10"
+            placeholder="1-9"
             style={WeightStyling}
             />
           </div>
@@ -241,7 +275,7 @@ class PatientDisplay extends React.Component {
             />
             <input
             name="excludeDrugWeight"
-            placeholder="0-10"
+            placeholder="1-9"
             style={WeightStyling}
             />
           </div>
@@ -260,18 +294,20 @@ class TableDisplay extends React.Component {
   constructor(props){
     super(props);
     this.createData = this.createData.bind(this);
+    this.pickColor = this.pickColor.bind(this);
     this.displayTrial = this.props.displayTrial.bind(this);
-    this.state = {trials: this.props.data};
+    this.state = {trials: this.props.data, weights: this.props.weights};
 
   }
 
   createData(trial) {
-    //trial = JSON.parse(trial);
     let score = trial.score;
     let rank = trial.Rank;
-    console.log(rank);
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
+    let type = false;//criteriaMatch.type;
+    let allocation = false;//criteriaMatch.allocation;
     let age = criteriaMatch.age;
+    let gender = false;//criteriaMatch.gender;
     let condition = criteriaMatch.condition;
     let inclusion = criteriaMatch.inclusion;
     let exclusion = criteriaMatch.exclusion;
@@ -281,15 +317,48 @@ class TableDisplay extends React.Component {
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
-    return {score, rank, age, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
+    return {score, rank, type, allocation, age, gender, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
   }
 
 
 
   componentDidUpdate(prevProps){
     if(this.props.data != prevProps.data){
-      this.setState({trials: this.props.data});
+      this.setState({trials: this.props.data, weights: this.props.weights});
     }
+  }
+
+  pickColor(match, index){
+    let weight = this.state.weights[index];
+    console.log(weight);
+    if(weight === '1'){
+      return (match ? '#bff2c5' : '#e09c90');
+    }
+    else if(weight === '2'){
+      return (match ? '#b1f2b9' : '#de8b7c');
+    }
+    else if(weight === '3'){
+      return (match ? '#a1f0aa' : '#de7e6d');
+    }
+    else if(weight ==='4'){
+      return (match ? '#91ed9b' : '#db715e');
+    }
+    else if(weight === '5'){
+      return (match ? '#7de889' : '#db6651');
+    }
+    else if(weight === '6'){
+      return (match ?'#5de36c' : '#d95841');
+    }
+    else if(weight === '7'){
+      return (match ? '#43de54' : '#d64c33');
+    }
+    else if(weight === '8'){
+      return (match ? '#27db3b' : '#d63518');
+    }
+    else if(weight === '9'){
+      return (match ? '#0fd124' : '#d12202');
+    }
+    return 'white';
   }
   
   render(){
@@ -310,16 +379,18 @@ class TableDisplay extends React.Component {
     return (
       <Paper className="MyRoot">
         <TableContainer className="MyTableContainer">
-          <Table stickyheader aria-label="sticky table">
+          <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
                 <TableCell>Score</TableCell>
                 <TableCell>Trial</TableCell>
+                <TableCell align="right">Type</TableCell>
+                <TableCell align="right">Allocation</TableCell>
                 <TableCell align="right">Age</TableCell>
+                <TableCell align="right">Gender</TableCell>
                 <TableCell align="right">Condition</TableCell>
                 <TableCell align="right">Inclusion Criteria</TableCell>
                 <TableCell align="right">Exclusion Criteria</TableCell>
-                <TableCell align="right">Trial Completed</TableCell>
                 <TableCell align="right">Include Drug</TableCell>
                 <TableCell align="right">Exclude Drug</TableCell>
               </TableRow>
@@ -331,13 +402,16 @@ class TableDisplay extends React.Component {
                     {row.score}
                   </TableCell>
                   <TableCell>{row.name}</TableCell>
-                  <TableCell className={!row.age ? "MyTableCell" : "MyTableCellMatch"}  align="right">{!row.age ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.condition ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.condition ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.inclusion ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.inclusion ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.exclusion ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.exclusion ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.completed ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.completed ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.includeDrug ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.includeDrug ? "No match" : "Match"}</TableCell>
-                  <TableCell className={!row.excludeDrug ? "MyTableCell" : "MyTableCellMatch"} align="right">{!row.excludeDrug ? "No match" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.type, 0)}} align="right">{!row.type ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.allocation, 1)}} align="right">{!row.allocation ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.age, 0)}}  align="right">{!row.age ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.gender, 3)}} align="right">{!row.gender ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.condition, 1)}} align="right">{!row.condition ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.inclusion, 2)}} align="right">{!row.inclusion ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.exclusion, 3)}} align="right">{!row.exclusion ? "No" : "Match"}</TableCell>
+                  
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.includeDrug, 4)}} align="right">{!row.includeDrug ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.excludeDrug, 5)}} align="right">{!row.excludeDrug ? "No" : "Match"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -402,8 +476,8 @@ class TrialWrapper extends React.Component {
             this.state.trialData.Study.ProtocolSection.StatusModule : null}
         />
         <TrialType
-          data={this.state.trialData.Study.ProtocolSection.DesignModule.StudyType ? 
-            this.state.trialData.Study.ProtocolSection.DesignModule.StudyType : null}
+          data={this.state.trialData.Study.ProtocolSection.DesignModule ? 
+            this.state.trialData.Study.ProtocolSection.DesignModule : null}
         />
         <TrialCondition 
           data={this.state.trialData.Study.ProtocolSection.ConditionsModule.ConditionList.Condition ? 
@@ -535,7 +609,12 @@ class TrialType extends React.Component {
       <div className="TrialSection" >
         <p>Type of Trial: 
           <span className="text">
-            {" " + this.state.data}
+            {" " + this.state.data.StudyType}
+          </span>
+        </p>
+        <p>Allocation: 
+          <span className="text">
+            {this.state.data.DesignInfo.DesignAllocation ? " " + this.state.data.DesignInfo.DesignAllocation : " N/A"}
           </span>
         </p>
       </div>
