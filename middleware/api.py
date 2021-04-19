@@ -132,7 +132,12 @@ def parse_request(request):
     
     result['type']=result['type'].lower()
     result['allocation']=result['allocation'].lower()
-    result['age']=result['age'].lower()
+    result['age']=result['age']
+    try:
+        int_age=int(result['age'])
+    except ValueError:
+        result['age']=''
+        
     result['gender']=result['gender'].lower()
     result['condition']=result['condition'].lower()
     result['inclusion']=result['inclusion'].lower()
@@ -239,7 +244,7 @@ def set_up_score(trial_data, criteria):
                 int_max_age = int(max_age.split(' ')[0])
             
             if not criteria['age'] == '':
-                int_age=int(criteria['age'])
+                int_age=criteria['age']
                 if min_age != '' and max_age != '':
                     if int_age>=int_min_age and int_age<=int_max_age:
                         score+=criteria['ageWeight']
