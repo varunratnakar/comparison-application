@@ -31,12 +31,15 @@ class Display extends React.Component{
 
     formData.set('keyword', formData.get('keyword'));
     let weights = []
-    weights.push(formData.get('ageWeight'));
-    weights.push(formData.get('conditionWeight'));
-    weights.push(formData.get('inclusionWeight'));
-    weights.push(formData.get('exclusionWeight'));
-    weights.push(formData.get('includeDrugWeight'));
-    weights.push(formData.get('excludeDrugWeight'));
+    formData.get('type') === '' ? weights.push('0') : weights.push(formData.get('typeWeight'));
+    formData.get('allocation') === '' ? weights.push('0') : weights.push(formData.get('allocationWeight'));
+    formData.get('age') === '' ? weights.push('0') : weights.push(formData.get('ageWeight'));
+    formData.get('gender') === '' ? weights.push('0') : weights.push(formData.get('genderWeight'));
+    formData.get('condition') === '' ? weights.push('0') : weights.push(formData.get('conditionWeight'));
+    formData.get('inclusion') === '' ? weights.push('0') : weights.push(formData.get('inclusionWeight'));
+    formData.get('exclusion') === '' ? weights.push('0') : weights.push(formData.get('exclusionWeight'));
+    formData.get('includeDrug') === '' ? weights.push('0') : weights.push(formData.get('includeDrugWeight'));
+    formData.get('excludeDrug') === '' ? weights.push('0') : weights.push(formData.get('excludeDrugWeight'));
     let results = []
     fetch('http://127.0.0.1:5000/api/sortTrialsByCriteria', {method: 'POST', body: formData})
       .then(response => response.json())
@@ -304,20 +307,19 @@ class TableDisplay extends React.Component {
     let score = trial.score;
     let rank = trial.Rank;
     let criteriaMatch = JSON.parse(trial.criteriaMatch);
-    let type = false;//criteriaMatch.type;
-    let allocation = false;//criteriaMatch.allocation;
+    let type = criteriaMatch.type;
+    let allocation = criteriaMatch.allocation;
     let age = criteriaMatch.age;
-    let gender = false;//criteriaMatch.gender;
+    let gender = criteriaMatch.gender;
     let condition = criteriaMatch.condition;
     let inclusion = criteriaMatch.inclusion;
     let exclusion = criteriaMatch.exclusion;
-    let completed = !criteriaMatch.ongoing;
     let includeDrug = criteriaMatch.includeDrug;
     let excludeDrug = criteriaMatch.excludeDrug;
 
     let name = trial.Study.ProtocolSection.IdentificationModule.BriefTitle;
 
-    return {score, rank, type, allocation, age, gender, name, condition, inclusion, exclusion, completed, includeDrug, excludeDrug};
+    return {score, rank, type, allocation, age, gender, name, condition, inclusion, exclusion, includeDrug, excludeDrug};
   }
 
 
@@ -331,6 +333,12 @@ class TableDisplay extends React.Component {
   pickColor(match, index){
     let weight = this.state.weights[index];
     console.log(weight);
+    if(weight === ''){
+      weight = '1';
+    }
+    if(weight === '0'){
+      return '#8a867d';
+    }
     if(weight === '1'){
       return (match ? '#bff2c5' : '#e09c90');
     }
@@ -404,14 +412,14 @@ class TableDisplay extends React.Component {
                   <TableCell>{row.name}</TableCell>
                   <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.type, 0)}} align="right">{!row.type ? "No" : "Match"}</TableCell>
                   <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.allocation, 1)}} align="right">{!row.allocation ? "No" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.age, 0)}}  align="right">{!row.age ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.age, 2)}}  align="right">{!row.age ? "No" : "Match"}</TableCell>
                   <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.gender, 3)}} align="right">{!row.gender ? "No" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.condition, 1)}} align="right">{!row.condition ? "No" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.inclusion, 2)}} align="right">{!row.inclusion ? "No" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.exclusion, 3)}} align="right">{!row.exclusion ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.condition, 4)}} align="right">{!row.condition ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.inclusion, 5)}} align="right">{!row.inclusion ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.exclusion, 6)}} align="right">{!row.exclusion ? "No" : "Match"}</TableCell>
                   
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.includeDrug, 4)}} align="right">{!row.includeDrug ? "No" : "Match"}</TableCell>
-                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.excludeDrug, 5)}} align="right">{!row.excludeDrug ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.includeDrug, 7)}} align="right">{!row.includeDrug ? "No" : "Match"}</TableCell>
+                  <TableCell className="MyTableCell" style={{backgroundColor: this.pickColor(row.excludeDrug, 8)}} align="right">{!row.excludeDrug ? "No" : "Match"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
