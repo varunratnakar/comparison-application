@@ -17,7 +17,7 @@ def home():
     <h1>Comparison Backend</h1>
     '''
 
-def get_trials(keyword, num_results):
+def get_trials(keyword):
     
     # Use keyword and numResults to query the API
     key = keyword.split()
@@ -58,12 +58,14 @@ def api_sortTrialsByCriteria():
     keyword = request.form['keyword']
     # num_results=2
     num_results = request.form['numResult']
+    if num_results == '':
+        num_results = '10'
     
     ### Assign a default value For testing ###
     criteria = parse_request(request)
     
     # get trial data based on keyword and numResults from front end request
-    trial_data = get_trials(keyword, num_results)
+    trial_data = get_trials(keyword)
     if trial_data == None:
         return jsonify(
             status=False,
