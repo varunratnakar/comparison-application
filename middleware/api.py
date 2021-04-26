@@ -17,9 +17,9 @@ def home():
     <h1>Comparison Backend</h1>
     '''
 
+# Send request to clinical api server and then parse it
 def get_trials(keyword):
-    
-    # Use keyword and numResults to query the API
+    # Use keyword to query the API
     key = keyword.split()
     search = ""
     last_ind = len(key) - 1
@@ -28,10 +28,12 @@ def get_trials(keyword):
         search = search + key[i]
         if i != last_ind:
             search += "+"
-            
+    
+    # clinical api server can only send 100 trials per request
     query_string = "https://clinicaltrials.gov/api/query/full_studies?expr=" + search + "&min_rnk=1&max_rnk=100&fmt=json"
     response = requests.get(query_string)
 
+    # only extract useful part in JSON
     full_studies_response = response.json()['FullStudiesResponse']
     try:
         full_studies = full_studies_response['FullStudies']
@@ -40,7 +42,8 @@ def get_trials(keyword):
         return None
     
     return full_studies
-    
+
+# First remomve ongoing trials (we only need completed trials) and then sort it
 def apply_sorting_criteria(trial_data, criteria):
     remove = set_up_score(trial_data, criteria)
     remove = remove[::-1]
@@ -52,20 +55,15 @@ def apply_sorting_criteria(trial_data, criteria):
 # Sort Trials By Criteria Route
 @app.route('/api/sortTrialsByCriteria', methods=['POST'])
 def api_sortTrialsByCriteria():
-    
-    ### Assign a default value For testing ###
-    # keyword = 'paloma'
     keyword = request.form['keyword']
-    # num_results=2
     num_results = request.form['numResult']
     if num_results == '':
         num_results = '10'
     
-    ### Assign a default value For testing ###
     criteria = parse_request(request)
-    
-    # get trial data based on keyword and numResults from front end request
     trial_data = get_trials(keyword)
+    
+    # if no result from clinical api server, return False to frontend
     if trial_data == None:
         return jsonify(
             status=False,
@@ -76,7 +74,8 @@ def api_sortTrialsByCriteria():
     end = int(num_results)
     if len(trial_data) < end:
         end = len(trial_data)
-        
+    
+    # return number of trials user input
     response = jsonify(
         status=True,
         message="Successfully sorted trials",
@@ -86,6 +85,7 @@ def api_sortTrialsByCriteria():
     #response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
+# Initial all matching results
 def set_criteria_match():
     result = {
         'type':False,
@@ -100,7 +100,7 @@ def set_criteria_match():
     }
     return result
 
-# sort trials from highest score to lowest (if there is no score, put this trial to tail)
+# Sort trials from highest score to lowest
 def sort_trials(trial_data):
     def score(trial_data):
         try:
@@ -108,15 +108,16 @@ def sort_trials(trial_data):
         except KeyError:
             return float('-inf')
     trial_data.sort(key=score, reverse=True)
-    
+
+# Parse user's input from sorting criteria
 def parse_request(request):
-    # print request
     result = {
         'type':request.form['type'],
         'typeWeight':1,
         'allocation':request.form['allocation'],
         'allocationWeight':1,
-        'age':request.form['age'],
+        'age_start':request.form['age'],
+        'age_end':'',
         'ageWeight':1,
         'gender':request.form['gender'],
         'genderWeight':1,
@@ -134,12 +135,34 @@ def parse_request(request):
     
     result['type']=result['type'].lower()
     result['allocation']=result['allocation'].lower()
-    result['age']=result['age']
+    
+    # Parse age that allow user input range of age
     try:
-        int_age=int(result['age'])
-    except ValueError:
-        result['age']=''
+        age_list=result['age_start'].split("-")
         
+        if len(age_list) == 1:
+            result['age_start']=age_list[0].strip()
+            result['age_end']=age_list[0].strip()
+            
+            int_age=int(result['age_start'])
+            int_age=int(result['age_end'])
+        elif len(age_list) != 2:
+            result['age_start']=''
+        else:
+            result['age_start']=age_list[0].strip()
+            result['age_end']=age_list[1].strip()
+        
+            int_age=int(result['age_start'])
+            int_age=int(result['age_end'])
+            
+            if int(result['age_start']) > int(result['age_end']):
+                result['age_start']=''
+                result['age_end']=''
+    except ValueError:
+        result['age_start']=''
+        result['age_end']=''
+    
+    # make all string to case-insensitive
     result['gender']=result['gender'].lower()
     result['condition']=result['condition'].lower()
     result['inclusion']=result['inclusion'].lower()
@@ -147,6 +170,7 @@ def parse_request(request):
     result['includeDrug']=result['includeDrug'].lower()
     result['excludeDrug']=result['excludeDrug'].lower()
     
+    # Parse sorting criteria weight
     if request.form['typeWeight'] != '':
         result['typeWeight']=int(request.form['typeWeight'])
     if request.form['allocationWeight'] != '':
@@ -181,9 +205,9 @@ def set_up_score(trial_data, criteria):
             
         score=0
         criteriaMatch=set_criteria_match()
+        # First check if trials completed. If not, continue and add the remove list
         try:
             completed_date=protocol_section['StatusModule']['PrimaryCompletionDateStruct']['PrimaryCompletionDate']
-            # Check ongoing
             date_list=completed_date.split(' ')
             date_str=''
             if len(date_list)==2:
@@ -196,14 +220,11 @@ def set_up_score(trial_data, criteria):
             
             if now_dt < dt:
                 remove.append(count)
-                #count+=1
-                #continue
         except KeyError:
             remove.append(count)
-            #count+=1
-            #continue
             print("No completion date Section")
         
+        # StudyType part
         try:
             study_type=protocol_section['DesignModule']['StudyType']
             study_type=study_type.lower()
@@ -212,7 +233,8 @@ def set_up_score(trial_data, criteria):
                 criteriaMatch['type']=True
         except KeyError:
             print("No StudyType Section")
-            
+        
+        # Allocation part
         try:
             design_allocation=protocol_section['DesignModule']['DesignInfo']['DesignAllocation']
             design_allocation=design_allocation.lower()
@@ -223,8 +245,8 @@ def set_up_score(trial_data, criteria):
             print("No DesignAllocation Section")
         
         if protocol_section['EligibilityModule']:
+            # Age part: parse age range from clinical api
             eligibility_module=protocol_section['EligibilityModule']
-            # Check if age is in range
             min_age=''
             max_age=''
             try:
@@ -237,7 +259,6 @@ def set_up_score(trial_data, criteria):
             except KeyError:
                 print("No MaximumAge Section")
             
-            # Convert to int
             int_min_age=0
             int_max_age=0
             if min_age != '':
@@ -245,22 +266,25 @@ def set_up_score(trial_data, criteria):
             if max_age != '':
                 int_max_age = int(max_age.split(' ')[0])
             
-            if not criteria['age'] == '':
-                int_age=criteria['age']
+            # Start checking if age matches request
+            if not criteria['age_start'] == '' and not criteria['age_end'] == '':
+                int_age_start=int(criteria['age_start'])
+                int_age_end=int(criteria['age_end'])
+                
                 if min_age != '' and max_age != '':
-                    if int_age>=int_min_age and int_age<=int_max_age:
+                    if int_age_start>=int_min_age and int_age_end<=int_max_age:
                         score+=criteria['ageWeight']
                         criteriaMatch['age']=True
                 elif min_age != '':
-                    if int_age>=int_min_age:
+                    if int_age_start>=int_min_age:
                         score+=criteria['ageWeight']
                         criteriaMatch['age']=True
                 elif max_age != '':
-                    if int_age<=int_max_age:
+                    if int_age_end<=int_max_age:
                         score+=criteria['ageWeight']
                         criteriaMatch['age']=True
             
-            # Check gender
+            # Gender part
             try:
                 gender=eligibility_module['Gender']
                 gender=gender.lower()
@@ -270,7 +294,7 @@ def set_up_score(trial_data, criteria):
             except KeyError:
                 print("No Gender Section")
             
-            # Check eligibilityCriteria
+            # Inclusion/Exclusion Criteria part
             try:
                 eligibility_criteria=eligibility_module['EligibilityCriteria']
                 eligibility_criteria=eligibility_criteria.split('\n')
@@ -314,7 +338,7 @@ def set_up_score(trial_data, criteria):
             except KeyError:
                 print("No EligibilityCriteria Section")
             
-        # Check if this condition exists
+        # Condition part
         try:
             con_list=protocol_section['ConditionsModule']['ConditionList']['Condition']
             if not criteria['condition'] == '':
@@ -326,36 +350,37 @@ def set_up_score(trial_data, criteria):
         except KeyError:
             print("No condition Section")
         
+        # Treatment part
         try:
-            # Check includeDrug and excludeDrug
             intervention_list=protocol_section['ArmsInterventionsModule']['InterventionList']['Intervention']
             for intervention in intervention_list:
                 intervention_type=intervention['InterventionType']
                 intervention_type=intervention_type.lower()
-                if intervention_type == 'drug' or intervention_type == 'other':
-                    intervention_name=intervention['InterventionName']
-                    intervention_name=intervention_name.lower()
-                    if criteria['includeDrug'] != '' and not criteriaMatch['includeDrug']:
-                        if criteria['includeDrug'] in intervention_name:
-                            score+=criteria['includeDrugWeight'] # includeDrug
-                            criteriaMatch['includeDrug']=True
+                # if intervention_type == 'drug' or intervention_type == 'other':
+                
+                intervention_name=intervention['InterventionName']
+                intervention_name=intervention_name.lower()
+                if criteria['includeDrug'] != '' and not criteriaMatch['includeDrug']:
+                    if criteria['includeDrug'] in intervention_name:
+                        score+=criteria['includeDrugWeight']
+                        criteriaMatch['includeDrug']=True
                     
-                    if criteria['excludeDrug'] != '' and criteriaMatch['excludeDrug']:
-                        if criteria['excludeDrug'] in intervention_name:
-                            criteriaMatch['excludeDrug']=False
+                if criteria['excludeDrug'] != '' and criteriaMatch['excludeDrug']:
+                    if criteria['excludeDrug'] in intervention_name:
+                        criteriaMatch['excludeDrug']=False
                 
         except KeyError:
-            print("No includeDrug and excludeDrug Section")
+            print("No includeTreatment and excludeTreatment Section")
             
         if criteria['excludeDrug'] == '':
             criteriaMatch['excludeDrug']=False
         else:
             if criteriaMatch['excludeDrug']:
-                score+=criteria['excludeDrugWeight'] # excludeDrug
+                score+=criteria['excludeDrugWeight']
             
         study.update({'score':score, 'criteriaMatch':json.dumps(criteriaMatch)})
         count+=1
-        print score
+        
     return remove
 
 app.run(debug=True, host='0.0.0.0')
