@@ -145,7 +145,7 @@ class PatientDisplay extends React.Component {
   */
 
   render(){
-    const BarStyling = {width:"80%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
+    const BarStyling = {width:"85%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"};
     const smallerBar = {width:"68%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     const WeightStyling = {width:"7%",background:"#F2F1F9", border:"none", padding:"0.5rem", margin:"5px"}
     return(
@@ -165,7 +165,7 @@ class PatientDisplay extends React.Component {
             name="numResult"
             type="text"
             style={BarStyling}
-            placeholder= {"number of results to return (default 10)"}
+            placeholder= {"number of results: (default 10)"}
             />
           </div>
           <div>
@@ -317,7 +317,7 @@ class TableDisplay extends React.Component {
   scoreRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td className>{trials[i].score}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)}>{trials[i].score}</td>);
     }
     return result;
   }
@@ -325,7 +325,13 @@ class TableDisplay extends React.Component {
   nameRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td className>{trials[i].name}</td>);
+      result.push(
+        <td onClick={() => this.displayTrial(trials[i].rank)}>
+          <div className="TableNameText">
+            {trials[i].name}
+          </div>
+        </td>
+        );
     }
     return result;
   }
@@ -334,7 +340,7 @@ class TableDisplay extends React.Component {
     let result = [];
     for(let i = 0; i < trials.length; i++){
       console.log(trials[i].type);
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].type, 0)}}>{trials[i].type ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].type, 0)}}>{trials[i].type ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -342,7 +348,7 @@ class TableDisplay extends React.Component {
   allocationRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].allocation, 1)}}>{trials[i].allocation ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].allocation, 1)}}>{trials[i].allocation ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -350,7 +356,7 @@ class TableDisplay extends React.Component {
   ageRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].age, 2)}}>{trials[i].age ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].age, 2)}}>{trials[i].age ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -358,7 +364,7 @@ class TableDisplay extends React.Component {
   genderRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].gender, 3)}}>{trials[i].gender ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].gender, 3)}}>{trials[i].gender ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -366,7 +372,7 @@ class TableDisplay extends React.Component {
   conditionRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].condition, 4)}}>{trials[i].condition ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].condition, 4)}}>{trials[i].condition ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -374,7 +380,7 @@ class TableDisplay extends React.Component {
   inclusionRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].inclusion, 5)}}>{trials[i].inclusion ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].inclusion, 5)}}>{trials[i].inclusion ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -382,7 +388,7 @@ class TableDisplay extends React.Component {
   exclusionRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].exclusion, 6)}}>{trials[i].exclusion ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].exclusion, 6)}}>{trials[i].exclusion ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -390,7 +396,7 @@ class TableDisplay extends React.Component {
   includeDrugRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].includeDrug, 7)}}>{trials[i].includeDrug ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].includeDrug, 7)}}>{trials[i].includeDrug ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -398,7 +404,7 @@ class TableDisplay extends React.Component {
   excludeDrugRow(trials){
     let result = [];
     for(let i = 0; i < trials.length; i++){
-      result.push(<td style={{backgroundColor: this.pickColor(trials[i].excludeDrug, 8)}}>{trials[i].excludeDrug ? "Match" : "No"}</td>);
+      result.push(<td onClick={() => this.displayTrial(trials[i].rank)} style={{backgroundColor: this.pickColor(trials[i].excludeDrug, 8)}}>{trials[i].excludeDrug ? "Match" : "No"}</td>);
     }
     return result;
   }
@@ -485,54 +491,60 @@ class TableDisplay extends React.Component {
     }
 
     return(
-      <table>
-        <tbody>
-          <tr>
-            <th>Score</th>
-            {this.scoreRow(trials)}
-          </tr>
-          <tr>
-            <th>Trial Name</th>
-            {this.nameRow(trials)}
-          </tr>
-          <tr>
-            <th>Type</th>
-            {this.typeRow(trials)}
-          </tr>
-          <tr>
-            <th>Allocation</th>
-            {this.allocationRow(trials)}
-          </tr>
-          <tr>
-            <th>Age</th>
-            {this.ageRow(trials)}
-          </tr>
-          <tr>
-            <th>Gender</th>
-            {this.genderRow(trials)}
-          </tr>
-          <tr>
-            <th>Condition</th>
-            {this.conditionRow(trials)}
-          </tr>
-          <tr>
-            <th>Inclusion</th>
-            {this.inclusionRow(trials)}
-          </tr>
-          <tr>
-            <th>Exclusion</th>
-            {this.exclusionRow(trials)}
-          </tr>
-          <tr>
-            <th>Include Drug</th>
-            {this.includeDrugRow(trials)}
-          </tr>
-          <tr>
-            <th>Exclude Drug</th>
-            {this.excludeDrugRow(trials)}
-          </tr>
-        </tbody>
-      </table>
+      <div className="MyTableContainer">
+        <table className = "MyTableBody">
+          <tbody>
+            <tr>
+              <th>
+                <div className="TitleCol">
+                  Score (sum of matches x weight)
+                </div>
+              </th>
+              {this.scoreRow(trials)}
+            </tr>
+            <tr>
+              <th>Trial Name</th>
+              {this.nameRow(trials)}
+            </tr>
+            <tr>
+              <th>Type</th>
+              {this.typeRow(trials)}
+            </tr>
+            <tr>
+              <th>Allocation</th>
+              {this.allocationRow(trials)}
+            </tr>
+            <tr>
+              <th>Age</th>
+              {this.ageRow(trials)}
+            </tr>
+            <tr>
+              <th>Gender</th>
+              {this.genderRow(trials)}
+            </tr>
+            <tr>
+              <th>Condition</th>
+              {this.conditionRow(trials)}
+            </tr>
+            <tr>
+              <th>Inclusion</th>
+              {this.inclusionRow(trials)}
+            </tr>
+            <tr>
+              <th>Exclusion</th>
+              {this.exclusionRow(trials)}
+            </tr>
+            <tr>
+              <th>Include Drug</th>
+              {this.includeDrugRow(trials)}
+            </tr>
+            <tr>
+              <th>Exclude Drug</th>
+              {this.excludeDrugRow(trials)}
+            </tr>
+          </tbody>
+        </table>
+      </div>
     );
 
     /*return (

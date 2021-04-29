@@ -50,20 +50,37 @@ body {
 }
 
 .TableDisplay{
-  overflow-y: scroll;
   height: 500px;
 }
 
 .MyTableContainer{
-  max-height: 500;
+  overflow-x: scroll;
+  height: 100%;
+  width: 100%;
 }
 
 .MyTableBody{
-  overflow-y: scroll;
+  height: 98%;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
-.MyTableCell{
-  white-space: nowrap;
-  
+
+.TitleCol{
+  width: 120px;
+}
+
+td{
+  border: 1px solid black;
+  text-align: center;
+}
+
+th{
+  border: 1px solid black;
+  text-align: center;
+}
+
+.TableNameText{
+  width: 200px;
 }
 
 .TrialCollection{
