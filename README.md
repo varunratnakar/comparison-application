@@ -10,7 +10,7 @@ docker-compose up --force-recreate --build -d
 
 then run docker-compose up to start project with changed code
 
-# Create brief text descriptions describing layout/functionality of each file and how they fit together:
+# Layout/Functionality descriptions of each file:
 
 /middleware:
  1. Dockerfile: specifies python version, installs dependencies in requirements.txt, runs api.py
@@ -23,6 +23,6 @@ then run docker-compose up to start project with changed code
  
  - Dockerfile first starts dockerizing api.py with parameters from requirements.txt. When the middleware is dockerized, it will keep listening requests from frontend. Once middleware receives request from frontend, it will send the request to clinicaltrials.gov. After middleware receives data from clinicaltrials.gov, middleware will parse, sort and filter data and then send to frontend.
 
-# Include instructions/ideas for how to highlight matching criteria:
+# Instructions/Ideas for how to highlight matching criteria:
  1) Middleware can parse it and put the indices of keywords in JSON and send back, and frontend can add CSS tag highlight the matching keyword based on the indices.
  2) Frontend can go through all text and add CSS tag to the keywords.
