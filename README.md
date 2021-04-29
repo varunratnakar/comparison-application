@@ -12,13 +12,17 @@ then run docker-compose up to start project with changed code
 
 # Create brief text descriptions describing layout/functionality of each file and how they fit together:
 
- * In middleware:
- 1. Dockerfile: This file builds the Docker container and dockerizes middleware to host its functions.
- 2. requirements.txt: This file contains all required parameters for dockerization.
- 3. api.py: This file handles RESTful API and sorting function.
+/middleware:
+ 1. Dockerfile: specifies python version, installs dependencies in requirements.txt, runs api.py
+ 3. requirements.txt: list of python libraries to include in api.py
+ 4. api.py: REST API with sorting algorithm and filtering
 
- - Dockerfile first starts dockerizing api.py with parameters from requirements.txt. When the api.py is dockerized, it will keep listening requests from frontend. Once api.py receives request from frontend, it will send the request to clinicaltrials.gov. After api.py receives data from clinicaltrials.gov, it will parse, sort and filter the data and then send to frontend.
+/frontend:
+ 1. Dockerfile: start project on port 3000 with libraries specified in package.json
+ 2. /src: contains .css file that corresponds to the .js file. Index.js is the react front end
+ 
+ - Dockerfile first starts dockerizing api.py with parameters from requirements.txt. When the middleware is dockerized, it will keep listening requests from frontend. Once middleware receives request from frontend, it will send the request to clinicaltrials.gov. After middleware receives data from clinicaltrials.gov, middleware will parse, sort and filter data and then send to frontend.
 
 # Include instructions/ideas for how to highlight matching criteria:
- 1) Middleware can parse it and put the indices of keywords in JSONArray and then send it back; frontend can add CSS tag to highlight the matching keyword based on the indices.
- 2) Frontend can go through all text and then add CSS tag to the keywords.
+ 1) Middleware can parse it and put the indices of keywords in JSON and send back, and frontend can add CSS tag highlight the matching keyword based on the indices.
+ 2) Frontend can go through all text and add CSS tag to the keywords.
