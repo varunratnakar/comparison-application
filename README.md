@@ -13,7 +13,7 @@ then run docker-compose up to start project with changed code
 # Create brief text descriptions describing layout/functionality of each file and how they fit together:
 
  * In middleware:
- 1. Dockerfile: This file builds the Docker container and dockerizes to host middleware functions.
+ 1. Dockerfile: This file builds the Docker container and dockerizes middleware to host its functions.
  2. requirements.txt: This file contains all required parameters for dockerization.
  3. api.py: This file handles RESTful API and sorting function.
 
