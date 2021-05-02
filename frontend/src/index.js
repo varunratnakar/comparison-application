@@ -585,11 +585,11 @@ class TableDisplay extends React.Component {
               {this.exclusionRow(trials)}
             </tr>
             <tr key='includeDrug'>
-              <th>Include Drug</th>
+              <th>Include Treatment</th>
               {this.includeDrugRow(trials)}
             </tr>
             <tr key='excludeDrug'>
-              <th>Exclude Drug</th>
+              <th>Exclude Treatment</th>
               {this.excludeDrugRow(trials)}
             </tr>
           </tbody>
